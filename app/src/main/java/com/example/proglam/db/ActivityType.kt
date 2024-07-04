@@ -10,7 +10,7 @@ data class ActivityType(
 
     val desc: String,
 
-    val iconSrc: String,
+    var iconSrc: String,
 
     val tools: Int
 )

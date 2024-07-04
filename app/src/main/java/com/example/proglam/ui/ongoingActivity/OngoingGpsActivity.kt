@@ -19,6 +19,7 @@ import com.example.proglam.databinding.ActivityOngoingBinding
 import com.example.proglam.db.ActivityRecord
 import com.example.proglam.db.ActivityRecordViewModel
 import com.example.proglam.utils.ActivityService
+import com.example.proglam.utils.JsonData
 import com.example.proglam.utils.Strings
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
@@ -40,13 +41,17 @@ class OngoingGpsActivity : AppCompatActivity() {
         //set ongoing activity data
         val extras = intent.extras
         if (extras != null) {
-            this.activityType = extras.getString("activityType")!!
-            this.startTime = extras.getString("startTime")!!
+            if(extras.getString("activityType") != null)
+                this.activityType = extras.getString("activityType")!!
+            if (extras.getString("startTime") != null)
+                this.startTime = extras.getString("startTime")!!
+            else
+                this.startTime = System.currentTimeMillis().toString()
+            if(extras.getString("firstTime") != null)
+                callForegroundService(ActivityService.Actions.START.toString())
         }
 
         setObservers()
-        callForegroundService(ActivityService.Actions.START.toString())
-
 
         /* UI setup */
         binding = ActivityOngoingBinding.inflate(layoutInflater)
@@ -66,6 +71,7 @@ class OngoingGpsActivity : AppCompatActivity() {
         val stopBtn = findViewById<MaterialButton>(R.id.stop_btn)
         stopBtn.setOnClickListener {
             callForegroundService(ActivityService.Actions.STOP.toString())
+            activityToolsData = Gson().toJson(JsonData(GpsService.locations.value!!, 0))
             registerActivityRecord()
             finish()
         }
@@ -86,8 +92,6 @@ class OngoingGpsActivity : AppCompatActivity() {
 
                 is TimerEvent.END -> {
                     isTimerRunning = false
-                    activityToolsData = Gson().toJson(GpsService.locations.value)
-                    registerActivityRecord()
                     finish()
                 }
                 is TimerEvent.ABORT -> {

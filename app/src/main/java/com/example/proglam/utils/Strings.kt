@@ -8,7 +8,7 @@ object Strings {
             var m = 0L
             var s = seconds
 
-            while (s >= 360) {
+            while (s >= 3600) {
                 h++
                 s -= 360
             }

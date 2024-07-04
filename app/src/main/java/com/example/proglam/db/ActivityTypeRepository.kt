@@ -8,6 +8,8 @@ class ActivityTypeRepository(private val activityTypeDao: ActivityTypeDao) {
     val getActivityTypes: LiveData<List<ActivityType>> = activityTypeDao.getActivityTypes()
 
     suspend fun addActivityType(activityType: ActivityType) {
+        if(activityType.iconSrc.isEmpty())
+            activityType.iconSrc = "ic_activitytype_generic"
         activityTypeDao.addActivityType(activityType)
     }
 

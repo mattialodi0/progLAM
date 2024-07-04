@@ -53,7 +53,7 @@ open class PedometerService: BaseService(), SensorEventListener {
                     this,
                     143,
                     Intent(this, OngoingPedometerActivity::class.java).apply {
-                        this.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     },
                     PendingIntent.FLAG_MUTABLE
                 )

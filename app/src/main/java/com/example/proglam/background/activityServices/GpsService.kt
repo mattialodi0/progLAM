@@ -71,7 +71,7 @@ open class GpsService: BaseService() {
                     this,
                     143,
                     Intent(this, OngoingGpsActivity::class.java).apply {
-                        this.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     },
                     PendingIntent.FLAG_MUTABLE
                 )

@@ -13,8 +13,10 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.proglam.R
+import com.example.proglam.background.activityServices.GpsService
 import com.example.proglam.db.ActivityRecordViewModel
 import com.example.proglam.db.ActivityTypeViewModel
+import com.example.proglam.utils.JsonData
 import com.example.proglam.utils.Strings
 
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -23,6 +25,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
@@ -30,16 +34,20 @@ import java.util.Date
 import java.util.Locale
 
 class ActivityRecordFragment : Fragment() {
-    /*
+
         private val callback = OnMapReadyCallback { googleMap ->
-            val sydney = LatLng(-34.0, 151.0)
-            googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+            val lat = toolsObj.positions[0].first
+            val lng = toolsObj.positions[0].second
+            val myPos = LatLng(lat, lng)
+            googleMap.addMarker(MarkerOptions().position(myPos).title("myMarker"))
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPos))
+            googleMap.animateCamera( CameraUpdateFactory.zoomTo( 16.0f ) );
         }
-     */
+
 
     private val mActivityRecordViewModel: ActivityRecordViewModel by viewModels()
     private val mActivityTypeViewModel: ActivityTypeViewModel by viewModels()
+    private lateinit var toolsObj: JsonData
 
 
     override fun onCreateView(
@@ -81,8 +89,14 @@ class ActivityRecordFragment : Fragment() {
             time.text = Strings.formattedTimer(interval)
             val date = view.findViewById<TextView>(R.id.arDate_tv)
             date.text = SimpleDateFormat("dd/M/yyyy", Locale.ITALY).format(activityRecord.startTime)
+
+
+            toolsObj = Gson().fromJson(activityRecord.toolData, JsonData::class.java)
+            val mapFragment = childFragmentManager.findFragmentById(R.id.ar_map) as SupportMapFragment?
+            mapFragment?.getMapAsync(callback)
+
             val info = view.findViewById<TextView>(R.id.arInfo_tv)
-            info.text = activityRecord.toolData
+            info.text = "steps: ${toolsObj.steps}"
         }
 
         mActivityTypeViewModel.getActivityTypeByName.observe(viewLifecycleOwner) { activityType ->
@@ -104,7 +118,7 @@ class ActivityRecordFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        //val mapFragment = childFragmentManager.findFragmentById(R.id.activityRecord_map) as SupportMapFragment?
         //mapFragment?.getMapAsync(callback)
     }
 }

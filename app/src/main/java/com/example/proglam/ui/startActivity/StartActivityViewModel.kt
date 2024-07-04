@@ -6,12 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.proglam.db.ActivityType
 
 class StartActivityViewModel : ViewModel() {
-
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is start activity Fragment"
-    }
-    val text: LiveData<String> = _text
-
+    var autoRec: MutableLiveData<Boolean> = MutableLiveData(false)
 
     val selectedActivityTypeName = MutableLiveData("-")
     val selectedActivityType = MutableLiveData<ActivityType>()

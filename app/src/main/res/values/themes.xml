@@ -2,14 +2,15 @@
     <!-- Base application theme. -->
     <style name="Theme.ProgLAM" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/green_500</item>
-        <item name="colorPrimaryVariant">@color/green_200</item>
+        <item name="colorPrimary">@color/gray_200</item>
+        <item name="colorPrimaryVariant">@color/gray_700</item>
         <item name="colorOnPrimary">@color/black</item>
 
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/gray_200</item>
-        <item name="colorSecondaryVariant">@color/gray_700</item>
+        <item name="colorSecondary">@color/green_500</item>
+        <item name="colorSecondaryVariant">@color/green_200</item>
         <item name="colorOnSecondary">@color/black</item>
+
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Background -->

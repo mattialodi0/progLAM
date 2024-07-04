@@ -74,7 +74,7 @@ open class BaseService : LifecycleService(), ActivityService {
                     .setContentText(Strings.formattedTimer(it/1000))
                 val notificationManager =
                     getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.notify(NOTIFICATION_ID, builder.build())
+                //notificationManager.notify(NOTIFICATION_ID, builder.build())
             }
         })
     }
@@ -119,7 +119,7 @@ open class BaseService : LifecycleService(), ActivityService {
                     this,
                     143,
                     Intent(this, OngoingBaseActivity::class.java).apply {
-                        this.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     },
                     PendingIntent.FLAG_MUTABLE
                 )

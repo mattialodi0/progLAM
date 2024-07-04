@@ -24,7 +24,7 @@
         app:cornerRadius="16dp"
         app:icon="@drawable/ic_baseline_add_green_24"
         app:iconGravity="textTop"
-        app:iconTint="?attr/colorPrimary"
+        app:iconTint="?attr/colorSecondary"
 
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toStartOf="@+id/todayActivitiesNum_btn"

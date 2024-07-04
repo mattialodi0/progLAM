@@ -12,7 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.proglam.R
 import com.example.proglam.ui.ongoingActivity.OngoingGpsPedometerActivity
 
-class GpsPedometerService : GpsService(), SensorEventListener {
+open class GpsPedometerService : GpsService(), SensorEventListener {
 
     companion object {
         val stepsTotal = MutableLiveData<Int>(0)
@@ -52,7 +52,7 @@ class GpsPedometerService : GpsService(), SensorEventListener {
                     this,
                     143,
                     Intent(this, OngoingGpsPedometerActivity::class.java).apply {
-                        this.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     },
                     PendingIntent.FLAG_MUTABLE
                 )

@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         val activityType2 = ActivityType("run", "",  "ic_activitytype_run", 11)
         val activityType3 = ActivityType("rest", "",  "ic_activitytype_rest", 0)
         val activityType4 = ActivityType("sleep", "",  "ic_activitytype_sleep", 0)
-        val activityType5 = ActivityType("car travel", "",  "ic_activitytype_car", 1)
+        val activityType5 = ActivityType("in vehicle", "",  "ic_activitytype_car", 1)
 
         mActivityTypeViewModel.addActivityType(activityType1)
         mActivityTypeViewModel.addActivityType(activityType2)
