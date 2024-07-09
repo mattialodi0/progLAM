@@ -40,7 +40,7 @@ class OngoingGpsActivity : AppCompatActivity() {
 
         //set ongoing activity data
         val extras = intent.extras
-        if (extras != null) {
+        if (extras != null && savedInstanceState == null) {
             if(extras.getString("activityType") != null)
                 this.activityType = extras.getString("activityType")!!
             if (extras.getString("startTime") != null)

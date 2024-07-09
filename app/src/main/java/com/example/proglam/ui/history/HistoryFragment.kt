@@ -38,7 +38,7 @@ class HistoryFragment : Fragment() {
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
         val root: View = binding.root
         binding.viewmodel = mHistoryViewModel
-        mHistoryViewModel.timeRange.postValue("by month")
+        mHistoryViewModel.timeRange.postValue("last month")
 
         setButtonListeners(root)
         setObservers(root)
@@ -90,7 +90,7 @@ class HistoryFragment : Fragment() {
                     view.findViewById<TextView>(R.id.chartTitle_tv).text = "activities"
                 }
                 3 -> {
-                    view.findViewById<TextView>(R.id.chartTitle_tv).text = "veihcles"
+                    view.findViewById<TextView>(R.id.chartTitle_tv).text = "movement"
                 }
             }
         }

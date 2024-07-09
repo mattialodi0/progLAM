@@ -12,7 +12,7 @@ class HistoryViewModel : ViewModel() {
     }
     val text: LiveData<String> = _text
 
-    var timeRange = MutableLiveData<String>("by month")
+    var timeRange = MutableLiveData<String>("last month")
     var chartType = MutableLiveData<Int?>(null)
 
     fun changeChartType() {

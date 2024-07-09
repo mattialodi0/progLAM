@@ -12,7 +12,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [ActivityType::class, ActivityRecord::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class ActivityDatabase : RoomDatabase() {

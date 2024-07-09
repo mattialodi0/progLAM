@@ -80,7 +80,7 @@ class NewActivityFragment : Fragment() {
 
     private fun addActivityTypeToDB(name: String, desc: String, tools: Int) {
         if(name != "" && name != " ") {
-            val activityType = ActivityType(name, desc, "ic_activitytype_generic", tools)
+            val activityType = ActivityType(0, name, desc, "ic_activitytype_generic", tools)
             mActivityTypeViewModel.addActivityType(activityType)
             Toast.makeText(requireContext(), "Added a new activity type", Toast.LENGTH_SHORT).show()
         }

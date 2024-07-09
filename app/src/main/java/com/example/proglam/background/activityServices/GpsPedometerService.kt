@@ -7,6 +7,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
 import com.example.proglam.R
@@ -26,6 +27,13 @@ open class GpsPedometerService : GpsService(), SensorEventListener {
     override fun onCreate() {
         super.onCreate()
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        if(stepSensor == null) {
+            Toast.makeText(this, "No step sensor on device", Toast.LENGTH_SHORT).show()
+        }
+        else {
+            sensorManager?.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_UI)
+        }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {

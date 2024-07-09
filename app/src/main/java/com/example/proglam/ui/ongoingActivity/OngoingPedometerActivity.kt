@@ -3,7 +3,6 @@ package com.example.proglam.ui.ongoingActivity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -12,8 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.proglam.R
 import com.example.proglam.utils.TimerEvent
 import com.example.proglam.background.activityServices.BaseService
-import com.example.proglam.background.activityServices.GpsPedometerService
-import com.example.proglam.background.activityServices.GpsService
 import com.example.proglam.background.activityServices.PedometerService
 import com.example.proglam.databinding.ActivityOngoingBinding
 import com.example.proglam.db.ActivityRecord
@@ -39,15 +36,16 @@ class OngoingPedometerActivity : AppCompatActivity() {
 
         //set ongoing activity data
         val extras = intent.extras
-        if (extras != null) {
+        if (extras != null && savedInstanceState == null) {
             if(extras.getString("activityType") != null)
                 this.activityType = extras.getString("activityType")!!
             if (extras.getString("startTime") != null)
                 this.startTime = extras.getString("startTime")!!
             else
                 this.startTime = System.currentTimeMillis().toString()
-            if(extras.getString("firstTime") != null)
+            if(extras.getString("firstTime") != null){
                 callForegroundService(ActivityService.Actions.START.toString())
+            }
         }
 
         setObservers()

@@ -49,10 +49,6 @@
         <activity
             android:name=".ui.ongoingActivity.OngoingGpsPedometerActivity"
             android:launchMode="singleTop"  />
-        <activity
-            android:name=".ui.ongoingActivity.OngoingActivityRecognition"
-            android:exported="false"
-            android:launchMode="singleTop" />
 
         <service
             android:name=".background.activityServices.BaseService"

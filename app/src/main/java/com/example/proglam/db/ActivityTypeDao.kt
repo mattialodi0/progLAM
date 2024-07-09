@@ -22,4 +22,7 @@ interface ActivityTypeDao {
 
     @Query("SELECT * FROM activityType_table WHERE name = :name")
     fun findActivityTypeByName(name: String): ActivityType
+
+    @Query("SELECT COUNT(*) FROM activityType_table")
+    fun getActivityTypeCount(): Int
 }

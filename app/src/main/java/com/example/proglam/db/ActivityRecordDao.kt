@@ -2,10 +2,10 @@ package com.example.proglam.db
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 
 @Dao
 interface ActivityRecordDao {
@@ -36,4 +36,29 @@ interface ActivityRecordDao {
 
     @Query("SELECT * FROM activityRecord_table WHERE id = :id")
     fun getActivityById(id: Int): ActivityRecord
+
+    // chart queries
+    @Transaction
+    @Query("SELECT * FROM activityRecord_table WHERE startTime > :from")
+    //@Query("SELECT type, finishTime - startTime as duration  FROM activityRecord_table WHERE startTime > :from")
+    fun getActivitiesWithType(from: Long = 0): List<ActivityTypeWithActivityRecord>
+
+    @Transaction
+    @Query("SELECT * FROM activityRecord_table as R JOIN activityType_table as T ON name = type WHERE R.startTime > :from AND T.tools >= 10")
+    fun getActivitiesSteps(from: Long = 0): List<ActivityRecord>
+
+    @Transaction
+    @Query("""  SELECT at.id, at.name, SUM(ar.finishTime - ar.startTime)/(1000) AS dailyTime
+                FROM activityRecord_table ar INNER JOIN activityType_table at ON ar.type = at.name
+                WHERE startTime > :from
+                GROUP BY at.id, at.name, strftime('%d-%m-%Y', datetime(ar.startTime / 1000, 'unixepoch'))   """)
+    fun getActivitiesMeanTimeByDay(from: Long = 0): List<TypeDailyTimeTuple>
+
+    @Transaction
+    @Query("""  SELECT at.name, SUM(ar.finishTime-ar.startTime)/1000 as duration 
+                FROM activityRecord_table ar INNER JOIN activityType_table at ON ar.type = at.name
+                WHERE startTime > :from
+                GROUP BY at.name   """)
+    fun getActivitiesVehicles(from: Long = 0): List<TypeDurationTuple>
+
 }

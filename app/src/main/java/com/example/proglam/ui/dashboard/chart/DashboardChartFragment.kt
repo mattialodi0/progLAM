@@ -19,7 +19,9 @@ import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
+import java.util.Date
 
 
 class DashboardChartFragment : Fragment() {
@@ -39,29 +41,28 @@ class DashboardChartFragment : Fragment() {
     private fun setObserver(view: View) {
         mActivityRecordViewModel.fiveDaysActivities.observe(viewLifecycleOwner) {  activitiesRecords ->
 
-            val minutesPerDay = arrayOf(0L,0L,0L,0L,0L)
+            val secondsPerDay = arrayOf(0L,0L,0L,0L,0L)
             val dayLength:Long = 86400000
-            val timeNow: Long = System.currentTimeMillis()
+            val today = Date(Date().time - Date().time % (24 * 60 * 60 * 1000)).time
 
             for(ar in activitiesRecords) {
-                if (ar.startTime < timeNow - 4*dayLength) {
-                    minutesPerDay[0] += ar.finishTime-ar.startTime
+                if (ar.startTime > today) {
+                    secondsPerDay[4] += (ar.finishTime-ar.startTime)/1000
                 }
-                else if (ar.startTime < timeNow - 3*dayLength) {
-                    minutesPerDay[1] += ar.finishTime-ar.startTime
+                else if (ar.startTime > today - 1*dayLength) {
+                    secondsPerDay[3] += (ar.finishTime-ar.startTime)/1000
                 }
-                else if (ar.startTime < timeNow - 2*dayLength) {
-                    minutesPerDay[2] += ar.finishTime-ar.startTime
+                else if (ar.startTime > today - 2*dayLength) {
+                    secondsPerDay[2] += (ar.finishTime-ar.startTime)/1000
                 }
-                else if (ar.startTime < timeNow - 1*dayLength) {
-                    minutesPerDay[3] += ar.finishTime-ar.startTime
+                else if (ar.startTime > today - 3*dayLength) {
+                    secondsPerDay[1] += (ar.finishTime-ar.startTime)/1000
                 }
-                else if (ar.startTime < timeNow) {
-                    minutesPerDay[4] += ar.finishTime-ar.startTime
+                else if (ar.startTime > today - 4*dayLength) {
+                    secondsPerDay[0] += (ar.finishTime-ar.startTime)/1000
                 }
             }
-
-            drawBarChart(view, minutesPerDay)
+            drawBarChart(view, secondsPerDay)
         }
     }
 
@@ -82,20 +83,22 @@ class DashboardChartFragment : Fragment() {
             barChart.axisLeft.textColor = Color.LTGRAY
             barChart.xAxis.textColor = Color.LTGRAY
             barChart.xAxis.axisLineColor = Color.LTGRAY
+            barChart.description.textColor = Color.LTGRAY
         }
         else {
             barDataset.valueTextColor = Color.WHITE
             barChart.axisLeft.textColor = Color.WHITE
             barChart.xAxis.textColor = Color.WHITE
             barChart.xAxis.axisLineColor = Color.WHITE
+            barChart.description.textColor = Color.WHITE
         }
 
         var barData = BarData(barDataset)
         barChart.setFitBars(true)
         barChart.data = barData
-        barChart.description.text=" "
+        barChart.description.text = "seconds per day"
         barChart.axisRight.setDrawLabels(false)
-        barChart.xAxis.setDrawLabels(false)
+        barChart.xAxis.valueFormatter = IndexAxisValueFormatter(listOf("","","","","","yesterday","today"))
         barChart.legend.isEnabled = false
         barChart.animateY(2000)
     }

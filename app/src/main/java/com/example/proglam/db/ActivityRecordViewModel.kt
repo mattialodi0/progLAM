@@ -21,6 +21,8 @@ class ActivityRecordViewModel(application: Application) : AndroidViewModel(appli
     var getActivitiesFromTo: LiveData<List<ActivityRecord>>
     var _getActivityById: MutableLiveData<ActivityRecord>
     var getActivityById: LiveData<ActivityRecord>
+    var _getActivitiesForCharts: MutableLiveData<List<Any>>
+    var getActivitiesForCharts: LiveData<List<Any>>
 
 
     init {
@@ -35,6 +37,8 @@ class ActivityRecordViewModel(application: Application) : AndroidViewModel(appli
         getActivitiesFromTo = _getActivitiesFromTo
         _getActivityById = MutableLiveData()
         getActivityById = _getActivityById
+        _getActivitiesForCharts = MutableLiveData(emptyList())
+        getActivitiesForCharts = _getActivitiesForCharts
     }
 
     fun addActivityRecord(activityRecord: ActivityRecord) {
@@ -57,6 +61,12 @@ class ActivityRecordViewModel(application: Application) : AndroidViewModel(appli
     fun findActivityById(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             _getActivityById.postValue(repository.getActivityById(id))
+        }
+    }
+
+    fun findActivitiesForCharts(type: Int, timeRange: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _getActivitiesForCharts.postValue(repository.findActivitiesForCharts(type, timeRange))
         }
     }
 }

@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
 
         /* DB setup */
-        populateDatabase()
+        //populateDatabase()
 
         /* background setup */
         Permissions.needsPermission(this, if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) android.Manifest.permission.POST_NOTIFICATIONS else "POST_NOTIFICATIONS")
@@ -111,11 +111,11 @@ class MainActivity : AppCompatActivity() {
     private fun populateDatabase() {
         val mActivityTypeViewModel = ViewModelProvider(this).get(ActivityTypeViewModel::class.java)
 
-        val activityType1 = ActivityType("walk", "",  "ic_activitytype_walk", 10)
-        val activityType2 = ActivityType("run", "",  "ic_activitytype_run", 11)
-        val activityType3 = ActivityType("rest", "",  "ic_activitytype_rest", 0)
-        val activityType4 = ActivityType("sleep", "",  "ic_activitytype_sleep", 0)
-        val activityType5 = ActivityType("in vehicle", "",  "ic_activitytype_car", 1)
+        val activityType1 = ActivityType(0,"walk", "",  "ic_activitytype_walk", 10)
+        val activityType2 = ActivityType(0,"run", "",  "ic_activitytype_run", 11)
+        val activityType3 = ActivityType(0,"rest", "",  "ic_activitytype_rest", 0)
+        val activityType4 = ActivityType(0,"sleep", "",  "ic_activitytype_sleep", 0)
+        val activityType5 = ActivityType(0,"in vehicle", "",  "ic_activitytype_car", 1)
 
         mActivityTypeViewModel.addActivityType(activityType1)
         mActivityTypeViewModel.addActivityType(activityType2)

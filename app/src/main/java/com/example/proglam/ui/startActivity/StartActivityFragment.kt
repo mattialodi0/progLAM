@@ -3,7 +3,9 @@ package com.example.proglam.ui.startActivity
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,6 +15,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.LinearLayout.TEXT_ALIGNMENT_CENTER
 import android.widget.LinearLayout.VERTICAL
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
@@ -20,30 +23,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.proglam.R
-import com.example.proglam.background.activityServices.BaseService
-import com.example.proglam.background.activityServices.GpsPedometerService
-import com.example.proglam.background.activityServices.GpsService
-import com.example.proglam.background.activityServices.PedometerService
+import com.example.proglam.background.activityServices.ActivityRecognitionService
 import com.example.proglam.databinding.FragmentStartActivityBinding
 import com.example.proglam.db.ActivityTypeViewModel
 import com.example.proglam.ui.ongoingActivity.OngoingBaseActivity
 import com.example.proglam.ui.ongoingActivity.OngoingGpsActivity
 import com.example.proglam.ui.ongoingActivity.OngoingGpsPedometerActivity
 import com.example.proglam.ui.ongoingActivity.OngoingPedometerActivity
-import com.example.proglam.utils.Permissions
-import android.content.DialogInterface
-
-import android.location.LocationManager
-import android.provider.Settings
-import android.util.Log
-import android.widget.ScrollView
-import androidx.core.location.LocationManagerCompat
-import com.example.proglam.ui.ongoingActivity.OngoingActivityRecognition
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 
@@ -51,13 +42,14 @@ class StartActivityFragment : Fragment() {
     private var _binding: FragmentStartActivityBinding? = null
     private val mStartActivityViewModel: StartActivityViewModel by viewModels()
     private var isOngoingActivityRunning = false
+    private lateinit var locationManager: LocationManager
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        locationManager =
+            requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -100,64 +92,79 @@ class StartActivityFragment : Fragment() {
     // Function for the UI
     private fun populateScrollViewActivityTypes(view: View) {
         val ll: LinearLayout = view.findViewById(R.id.activityTypes_ll)
-
         ll.removeAllViews()
 
-        val mActivityTypeViewModel = ViewModelProvider(this).get(ActivityTypeViewModel::class.java)
-        mActivityTypeViewModel.getActivityTypes.observe(
-            viewLifecycleOwner,
-            Observer { activityTypes ->
-                var i = 0
-                for (activityType in activityTypes) {
-                    if (i > activityTypes.size)
-                        break
-                    i++
+        val mActivityTypeViewModel = ViewModelProvider(this)[ActivityTypeViewModel::class.java]
+        mActivityTypeViewModel.getActivityTypes.observe(viewLifecycleOwner) { at ->
+            val activityTypes = at.sortedBy { it.name }
+            var i = 0
+            for (activityType in activityTypes) {
+                if (i > activityTypes.size)
+                    break
+                i++
 
-                    val hll = LinearLayout(activity)
-                    val activityTypeBtn = Button(activity)
-                    val activityTypeText = TextView(activity)
+                val hll = LinearLayout(activity)
+                val activityTypeBtn = Button(activity)
+                val activityTypeText = TextView(activity)
 
-                    activityTypeText.text = activityType.name.toString()
-                    activityTypeText.textAlignment = TEXT_ALIGNMENT_CENTER
-                    hll.orientation = VERTICAL
-                    if (com.example.proglam.utils.System.isNightModeOn(requireContext())) {
-                        val color = ContextCompat.getColor(requireContext(), R.color.gray_700)
-                        hll.setBackgroundColor(color)
-                    } else {
-                        val color = ContextCompat.getColor(requireContext(), R.color.gray_200)
-                        hll.setBackgroundColor(color)
-                    }
-
-                    val context: Context = ll.context
-                    //activityTypeBtn.background = ContextCompat.getDrawable(requireContext(), R.drawable.round_button)
-                    activityTypeBtn.background = ContextCompat.getDrawable(
-                        requireContext(),
-                        context.resources.getIdentifier(
-                            activityType.iconSrc.toString(),
-                            "drawable",
-                            context.packageName
-                        )
-                    )
-
-                    val dpInPx = com.example.proglam.utils.System.floatToDP(64F, resources)
-                    activityTypeBtn.setLayoutParams(
-                        LinearLayout.LayoutParams(
-                            dpInPx.toInt(),
-                            dpInPx.toInt()
-                        )
-                    )
-
-                    activityTypeBtn.setOnClickListener {
-                        mStartActivityViewModel.setSelectedActivityTypeName(activityType.name)
-                        mStartActivityViewModel.setSelectedActivityType(activityType)
-                    }
-
-
-                    hll.addView(activityTypeBtn)
-                    hll.addView(activityTypeText)
-                    ll.addView(hll)
+                activityTypeText.text = activityType.name.toString()
+                activityTypeText.textAlignment = TEXT_ALIGNMENT_CENTER
+                hll.orientation = VERTICAL
+                if (com.example.proglam.utils.System.isNightModeOn(requireContext())) {
+                    val color = ContextCompat.getColor(requireContext(), R.color.gray_700)
+                    hll.setBackgroundColor(color)
+                } else {
+                    val color = ContextCompat.getColor(requireContext(), R.color.gray_200)
+                    hll.setBackgroundColor(color)
                 }
-            })
+
+                val context: Context = ll.context
+                //activityTypeBtn.background = ContextCompat.getDrawable(requireContext(), R.drawable.round_button)
+                activityTypeBtn.background = ContextCompat.getDrawable(
+                    requireContext(),
+                    context.resources.getIdentifier(
+                        activityType.iconSrc.toString(),
+                        "drawable",
+                        context.packageName
+                    )
+                )
+
+                val dpInPx = com.example.proglam.utils.System.floatToDP(64F, resources)
+                activityTypeBtn.setLayoutParams(
+                    LinearLayout.LayoutParams(
+                        dpInPx.toInt(),
+                        dpInPx.toInt()
+                    )
+                )
+
+                activityTypeBtn.setOnClickListener {
+                    mStartActivityViewModel.setSelectedActivityTypeName(activityType.name)
+                    mStartActivityViewModel.setSelectedActivityType(activityType)
+                }
+                activityTypeBtn.setOnLongClickListener {
+                    AlertDialog.Builder(context)
+                        .setTitle("Delete activity type")
+                        .setMessage("Are you sure you want to delete \"${activityType.name}\"?")
+                        .setPositiveButton(android.R.string.yes
+                        ) { _, _ ->
+                            mActivityTypeViewModel.removeActivityType(activityType)
+                            Toast.makeText(
+                                requireContext(),
+                                "deleted ${activityType.name}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        .setNegativeButton(android.R.string.no, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show()
+                    return@setOnLongClickListener true
+                }
+
+                hll.addView(activityTypeBtn)
+                hll.addView(activityTypeText)
+                ll.addView(hll)
+            }
+        }
     }
 
     private fun displayActivityDataBox(view: View) {
@@ -179,6 +186,15 @@ class StartActivityFragment : Fragment() {
             val acToolsTV = view.findViewById<TextView>(R.id.activityDescTools_tv)
             acToolsTV.text = tools
         }
+
+        mStartActivityViewModel.autoRec.observe(viewLifecycleOwner) {
+            if (it) {
+
+                activity?.startService(Intent(activity, ActivityRecognitionService::class.java))
+            } else {
+                activity?.stopService(Intent(activity, ActivityRecognitionService::class.java))
+            }
+        }
     }
 
 
@@ -199,16 +215,7 @@ class StartActivityFragment : Fragment() {
 
         val switch = view.findViewById<SwitchMaterial>(R.id.autoActivityRecognition_switch)
         switch.setOnCheckedChangeListener { _, isChecked ->
-            mStartActivityViewModel.autoRec.postValue(isChecked)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private fun startButtonFunction() {
-        val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-        if(mStartActivityViewModel.autoRec.value == true) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 ActivityCompat.requestPermissions(
                     requireActivity(),
                     arrayOf(
@@ -221,7 +228,7 @@ class StartActivityFragment : Fragment() {
                     ),
                     0
                 )
-            else
+            } else {
                 ActivityCompat.requestPermissions(
                     requireActivity(),
                     arrayOf(
@@ -234,15 +241,26 @@ class StartActivityFragment : Fragment() {
                     ),
                     0
                 )
-
+            }
             if (LocationManagerCompat.isLocationEnabled(locationManager)) {
-                val intent = Intent(activity, OngoingActivityRecognition::class.java)
-                intent.putExtra("startTime", System.currentTimeMillis().toString())
-                intent.putExtra("firstTime", true.toString())
-                startForResult.launch(intent)
+                mStartActivityViewModel.autoRec.postValue(isChecked)
+            } else {
+                switch.isChecked = false
+                Toast.makeText(requireContext(), "You need to turn on location", Toast.LENGTH_LONG)
+                    .show()
             }
         }
-        else if (mStartActivityViewModel.selectedActivityTypeName.value != "-") {
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private fun startButtonFunction() {
+        if (mStartActivityViewModel.autoRec.value == true) {
+            Toast.makeText(
+                requireContext(),
+                "Already recording activity automatically",
+                Toast.LENGTH_LONG
+            ).show()
+        } else if (mStartActivityViewModel.selectedActivityTypeName.value != "-") {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 ActivityCompat.requestPermissions(
