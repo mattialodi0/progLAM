@@ -6,25 +6,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class HistoryViewModel : ViewModel() {
-
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is history Fragment"
-    }
-    val text: LiveData<String> = _text
-
-    var timeRange = MutableLiveData<String>("last month")
-    var chartType = MutableLiveData<Int?>(null)
+    var timeRange = MutableLiveData("last month")
+    private var _chartType = MutableLiveData<Int?>(null)
+    val chartType = _chartType
 
     fun changeChartType() {
-        val n = chartType.value?.plus(1)
+        val n = _chartType.value?.plus(1)
         if (n != null) {
             if(n <= 3)
-                chartType.postValue(n)
+                _chartType.postValue(n)
             else
-                chartType.postValue(0)
+                _chartType.postValue(0)
         }
         else {
-            chartType.postValue(1)
+            _chartType.postValue(1)
         }
     }
 }

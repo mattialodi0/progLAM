@@ -96,19 +96,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/activityGraph_cv" />
 
-    <LinearLayout
-        android:id="@+id/activityRecords_ll"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recentAR_rv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-
+        android:layout_height="0dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="64dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title_tv">
-
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/title_tv" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -144,16 +144,18 @@ object ProcessDBData {
             } else j++
         }
 
-        // add other and none activities
+        // add other activities
         if (other > 0) {
             arr.add(other)
             labels.add("other")
         }
-        val tot = arr.sum() + other
-        arr.add(1 - tot)
-        labels.add("none")
 
-        return Pair(arr.toFloatArray().toTypedArray(), labels)
+        val formattedArr = ArrayList<Float>(5)
+        for(a in arr) {
+            formattedArr.add((a*100).toInt().toFloat())
+        }
+
+        return Pair(formattedArr.toTypedArray(), labels)
 
     }
 

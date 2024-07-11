@@ -1,10 +1,6 @@
 package com.example.proglam.db
 
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -35,7 +31,8 @@ abstract class ActivityDatabase : RoomDatabase() {
                     "activity_database"
                 )
                     .fallbackToDestructiveMigration()
-                    .build()       //.createFromAsset("database/activities.db")
+                    .createFromAsset("database/activity_database.db")
+                    .build()
 
                 INSTANCE = instance
                 return instance

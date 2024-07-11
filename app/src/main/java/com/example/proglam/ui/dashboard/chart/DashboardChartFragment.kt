@@ -47,19 +47,19 @@ class DashboardChartFragment : Fragment() {
 
             for(ar in activitiesRecords) {
                 if (ar.startTime > today) {
-                    secondsPerDay[4] += (ar.finishTime-ar.startTime)/1000
+                    secondsPerDay[4] += (ar.finishTime-ar.startTime)/1000/60
                 }
                 else if (ar.startTime > today - 1*dayLength) {
-                    secondsPerDay[3] += (ar.finishTime-ar.startTime)/1000
+                    secondsPerDay[3] += (ar.finishTime-ar.startTime)/1000/60
                 }
                 else if (ar.startTime > today - 2*dayLength) {
-                    secondsPerDay[2] += (ar.finishTime-ar.startTime)/1000
+                    secondsPerDay[2] += (ar.finishTime-ar.startTime)/1000/60
                 }
                 else if (ar.startTime > today - 3*dayLength) {
-                    secondsPerDay[1] += (ar.finishTime-ar.startTime)/1000
+                    secondsPerDay[1] += (ar.finishTime-ar.startTime)/1000/60
                 }
                 else if (ar.startTime > today - 4*dayLength) {
-                    secondsPerDay[0] += (ar.finishTime-ar.startTime)/1000
+                    secondsPerDay[0] += (ar.finishTime-ar.startTime)/1000/60
                 }
             }
             drawBarChart(view, secondsPerDay)
@@ -96,7 +96,7 @@ class DashboardChartFragment : Fragment() {
         var barData = BarData(barDataset)
         barChart.setFitBars(true)
         barChart.data = barData
-        barChart.description.text = "seconds per day"
+        barChart.description.text = "minutes per day"
         barChart.axisRight.setDrawLabels(false)
         barChart.xAxis.valueFormatter = IndexAxisValueFormatter(listOf("","","","","","yesterday","today"))
         barChart.legend.isEnabled = false

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -55,6 +56,13 @@ class OngoingPedometerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_ongoing)
         setBtnListeners()
         setupUI()
+
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                callForegroundService(ActivityService.Actions.STOP.toString())
+                finish()
+            }
+        })
     }
 
     private fun setupUI() {

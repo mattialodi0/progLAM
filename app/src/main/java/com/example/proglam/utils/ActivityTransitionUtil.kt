@@ -6,6 +6,9 @@ import com.google.android.gms.location.DetectedActivity
 
 
 object ActivityTransitionsUtil {
+
+    fun getActivityTransitionRequest() = ActivityTransitionRequest(getTransitions())
+
     private fun getTransitions(): MutableList<ActivityTransition> {
         val transitions = mutableListOf<ActivityTransition>()
 

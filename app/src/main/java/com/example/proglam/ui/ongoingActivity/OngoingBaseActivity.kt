@@ -4,18 +4,19 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.proglam.R
-import com.example.proglam.utils.TimerEvent
 import com.example.proglam.background.activityServices.BaseService
 import com.example.proglam.db.ActivityRecord
 import com.example.proglam.db.ActivityRecordViewModel
 import com.example.proglam.utils.ActivityService
 import com.example.proglam.utils.Strings
+import com.example.proglam.utils.TimerEvent
 import com.google.android.material.button.MaterialButton
 
 
@@ -52,7 +53,15 @@ class OngoingBaseActivity : AppCompatActivity() {
         setContentView(R.layout.activity_ongoing)
         setBtnListeners()
         setupUI()
+
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                callForegroundService(ActivityService.Actions.STOP.toString())
+                finish()
+            }
+        })
     }
+
 
     private fun setupUI() {
         val title = findViewById<TextView>(R.id.title_tv)

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -58,6 +59,13 @@ class OngoingGpsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_ongoing)
         setBtnListeners()
         setupUI()
+
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                callForegroundService(ActivityService.Actions.STOP.toString())
+                finish()
+            }
+        })
     }
 
     private fun setupUI() {

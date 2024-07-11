@@ -9,7 +9,6 @@ import androidx.room.Transaction
 
 @Dao
 interface ActivityRecordDao {
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun addActivityRecord(activityRecord: ActivityRecord)
 
@@ -23,7 +22,8 @@ interface ActivityRecordDao {
     fun getTodayActivitiesNumber(todayTimestamp: Long): LiveData<Int>
 
     @Query("SELECT * FROM activityRecord_table WHERE startTime > :todayTimestamp")
-    fun getTodayActivities(todayTimestamp: Long): LiveData<List<ActivityRecord>>
+    fun getTodayActivitiesList(todayTimestamp: Long): List<ActivityRecord>
+
 
     @Query("SELECT * FROM activityRecord_table ORDER BY startTime DESC LIMIT :limit")
     fun getRecentActivityRecords(limit: Int): LiveData<List<ActivityRecord>>

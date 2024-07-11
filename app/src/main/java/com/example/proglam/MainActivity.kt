@@ -1,36 +1,37 @@
 package com.example.proglam
 
+import android.app.Activity
+import android.app.AlarmManager
+import android.app.AlertDialog
+import android.app.PendingIntent
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.view.View
-import android.view.Window
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.work.BackoffPolicy
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.WorkManager
+import com.example.proglam.background.AlarmReceiver
 import com.example.proglam.databinding.ActivityMainBinding
 import com.example.proglam.utils.Permissions
-import java.util.concurrent.TimeUnit
-import androidx.work.PeriodicWorkRequest
-import com.example.proglam.background.ReminderWorker
-import com.example.proglam.db.ActivityRecord
-import com.example.proglam.db.ActivityRecordViewModel
-import com.example.proglam.db.ActivityType
-import com.example.proglam.db.ActivityTypeViewModel
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
@@ -41,16 +42,17 @@ class MainActivity : AppCompatActivity() {
 
         setupNavigation()
 
-        /* DB setup */
-        //populateDatabase()
-
         /* background setup */
-        Permissions.needsPermission(this, if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) android.Manifest.permission.POST_NOTIFICATIONS else "POST_NOTIFICATIONS")
-        setWorker()
+        Permissions.needsPermission(
+            this,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) android.Manifest.permission.POST_NOTIFICATIONS else "POST_NOTIFICATIONS"
+        )
+        setAlarm()
     }
 
     private fun setupNavigation() {
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
         navController = navHostFragment.navController
         val navView: BottomNavigationView = binding.navView
 
@@ -63,11 +65,11 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            if(destination.id == R.id.navigation_calendarActivity || destination.id == R.id.navigation_newActivity
-                    || destination.id == R.id.navigation_activityRecord) {
+            if (destination.id == R.id.navigation_calendarActivity || destination.id == R.id.navigation_newActivity
+                || destination.id == R.id.navigation_activityRecord
+            ) {
                 navView.visibility = View.GONE
-            }
-            else {
+            } else {
 
                 navView.visibility = View.VISIBLE
             }
@@ -75,52 +77,87 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
         val navController = navHostFragment.navController
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
-    private fun setWorker() {
-        val mWorkManager = WorkManager.getInstance(applicationContext)
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun setAlarm() {
+        val mAlarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
 
-        // one time
-        /*val uploadRequest = OneTimeWorkRequest.Builder(ReminderWorker::class.java)
-            .build()
-        val workManager = WorkManager.getInstance(applicationContext)
-        workManager.getWorkInfoByIdLiveData(uploadRequest.id)
-            .observe(this, Observer {
-                Log.i("reminderWork", it.state.name.toString())
-            })
-        workManager.enqueue(uploadRequest)
-*/
+        val calendar1: Calendar = Calendar.getInstance()
+        calendar1.set(Calendar.HOUR_OF_DAY, 9)
+        calendar1.set(Calendar.MINUTE, 0)
 
-
-        // periodic
-        val request: PeriodicWorkRequest = PeriodicWorkRequest.Builder(
-            ReminderWorker::class.java, 10, TimeUnit.HOURS, 5, TimeUnit.MINUTES)
-            //.setInitialDelay(5, TimeUnit.SECONDS)
-            .setBackoffCriteria(BackoffPolicy.LINEAR, 3, TimeUnit.SECONDS)
-            .build()
-        mWorkManager.enqueueUniquePeriodicWork(
-            "reminderWork",
-            ExistingPeriodicWorkPolicy.KEEP,
-            request
+        // REMIND_TRACKING
+        val intent1 = Intent(this, AlarmReceiver::class.java)
+        intent1.action = "REMIND_TRACKING"
+        val pendingIntent1 = PendingIntent.getBroadcast(
+            this,
+            123,
+            intent1,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
         )
-    }
+        //mAlarmManager.cancel(pendingIntent1)
+        mAlarmManager.setInexactRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar1.getTimeInMillis(),
+            AlarmManager.INTERVAL_HALF_DAY,
+            pendingIntent1
+        )
 
-    private fun populateDatabase() {
-        val mActivityTypeViewModel = ViewModelProvider(this).get(ActivityTypeViewModel::class.java)
+        // REGISTER_NONE_ACTIVITY
+        val calendar2: Calendar = Calendar.getInstance()
+        calendar2.set(Calendar.HOUR_OF_DAY, 23)
+        calendar2.set(Calendar.MINUTE, 55)
 
-        val activityType1 = ActivityType(0,"walk", "",  "ic_activitytype_walk", 10)
-        val activityType2 = ActivityType(0,"run", "",  "ic_activitytype_run", 11)
-        val activityType3 = ActivityType(0,"rest", "",  "ic_activitytype_rest", 0)
-        val activityType4 = ActivityType(0,"sleep", "",  "ic_activitytype_sleep", 0)
-        val activityType5 = ActivityType(0,"in vehicle", "",  "ic_activitytype_car", 1)
+        val intent2 = Intent(this, AlarmReceiver::class.java)
+        intent2.action = "REGISTER_NONE_ACTIVITY"
+        val pendingIntent2 = PendingIntent.getBroadcast(
+            this,
+            124,
+            intent2,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+        )
+        //mAlarmManager.cancel(pendingIntent2)
+        if (mAlarmManager.canScheduleExactAlarms())
+            mAlarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC,
+                calendar2.getTimeInMillis(),
+                pendingIntent2
+            )
+        else {
+            val alarmPermissionResultLauncher: ActivityResultLauncher<Intent> =
+                registerForActivityResult(
+                    ActivityResultContracts.StartActivityForResult()
+                ) {
+                    if (it != null && it.resultCode == Activity.RESULT_OK) {
+                        Log.d("AlarmManager", "SCHEDULE_EXACT_ALARM permission granted")
+                        mAlarmManager.setExactAndAllowWhileIdle(
+                            AlarmManager.RTC_WAKEUP,
+                            calendar2.getTimeInMillis(),
+                            pendingIntent2
+                        )
+                    } else
+                        Log.d("AlarmManager", "SCHEDULE_EXACT_ALARM permission denied")
+                }
 
-        mActivityTypeViewModel.addActivityType(activityType1)
-        mActivityTypeViewModel.addActivityType(activityType2)
-        mActivityTypeViewModel.addActivityType(activityType3)
-        mActivityTypeViewModel.addActivityType(activityType4)
-        mActivityTypeViewModel.addActivityType(activityType5)
+            AlertDialog.Builder(this)
+                .setTitle("Alarm permission")
+                .setMessage("We need this permission to remind you to register activities")
+                .setPositiveButton("ALLOW") { _, _ ->
+                    val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                    val uri = Uri.fromParts("package", packageName, null)
+                    intent.setData(uri)
+                    alarmPermissionResultLauncher.launch(intent)
+                }
+                .setNegativeButton("DENY") { _, _ ->
+                    Log.d("AlarmManager", "SCHEDULE_EXACT_ALARM permission not granted")
+                }
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .show()
+        }
     }
 }

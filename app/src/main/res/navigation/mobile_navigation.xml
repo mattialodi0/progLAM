@@ -9,7 +9,7 @@
         android:id="@+id/navigation_startActivity"
         android:name="com.example.proglam.ui.startActivity.StartActivityFragment"
         android:label="@string/title_start_activity"
-        tools:layout="@layout/fragment_start_activity"></fragment>
+        tools:layout="@layout/fragment_start_activity" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_navigation_dashboard_to_activityRecordFragment"
             app:destination="@id/navigation_activityRecord" />
+        <action
+            android:id="@+id/action_navigation_dashboard_to_navigation_calendarActivity"
+            app:destination="@id/navigation_calendarActivity" />
     </fragment>
 
     <fragment

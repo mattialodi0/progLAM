@@ -8,10 +8,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ActivityTypeViewModel(application: Application): AndroidViewModel(application) {
-    val getActivityTypes: LiveData<List<ActivityType>>
-    private val repository: ActivityTypeRepository
 
+class ActivityTypeViewModel(application: Application): AndroidViewModel(application) {
+    private val repository: ActivityTypeRepository
+    val getActivityTypes: LiveData<List<ActivityType>>
     private val _getActivityTypeByName: MutableLiveData<ActivityType>
     val getActivityTypeByName: LiveData<ActivityType>
 

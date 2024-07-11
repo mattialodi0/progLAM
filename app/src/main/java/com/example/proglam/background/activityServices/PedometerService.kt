@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
 import com.example.proglam.R
-import com.example.proglam.ui.ongoingActivity.OngoingGpsActivity
 import com.example.proglam.ui.ongoingActivity.OngoingPedometerActivity
 
 open class PedometerService: BaseService(), SensorEventListener {

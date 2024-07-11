@@ -51,7 +51,7 @@ class ActivityRecordFragment : Fragment() {
                 )
             )
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(16.0f));
-        } else  {
+        } else {
             val myPos = LatLng(toolsObj.positions[0].first, toolsObj.positions[0].second)
             googleMap.addMarker(MarkerOptions().position(myPos).title("geolocation"))
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPos))
@@ -107,10 +107,12 @@ class ActivityRecordFragment : Fragment() {
 
 
             toolsObj = Gson().fromJson(activityRecord.toolData, JsonData::class.java)
-            if (toolsObj.positions.isNotEmpty()) {
-                val mapFragment =
-                    childFragmentManager.findFragmentById(R.id.ar_map) as SupportMapFragment?
-                mapFragment?.getMapAsync(callback)
+            if (toolsObj.positions != null) {
+                if (toolsObj.positions.isNotEmpty()) {
+                    val mapFragment =
+                        childFragmentManager.findFragmentById(R.id.ar_map) as SupportMapFragment?
+                    mapFragment?.getMapAsync(callback)
+                }
             } else {
                 val mapFragmentContainerView = view.findViewById<FragmentContainerView>(R.id.ar_map)
                 mapFragmentContainerView.visibility = View.GONE

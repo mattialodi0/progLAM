@@ -6,10 +6,13 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.example.proglam.background.ActivityRecognitionBroadcastReceiver
+import com.example.proglam.utils.ActivityTransitionsUtil
 import com.google.android.gms.common.internal.safeparcel.SafeParcelableSerializer
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityRecognitionClient
@@ -18,12 +21,14 @@ import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 
-class ActivityRecognitionService : Service() {
 
+class ActivityRecognitionService : Service() {
     private lateinit var activityRecognitionClient: ActivityRecognitionClient
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate() {
         super.onCreate()
+
         activityRecognitionClient = ActivityRecognition.getClient(this)
         startActivityRecognition()
     }
@@ -43,12 +48,12 @@ class ActivityRecognitionService : Service() {
                 Manifest.permission.ACTIVITY_RECOGNITION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            val task = activityRecognitionClient.requestActivityUpdates(
-                1000,
+            val task = activityRecognitionClient.requestActivityTransitionUpdates(
+                ActivityTransitionsUtil.getActivityTransitionRequest(),
                 getActivityDetectionPendingIntent()
             )
             task.addOnSuccessListener {
-                sendFakeActivityTransitionEvent()
+                //sendFakeActivityTransitionEvent()
             }
         }
     }
@@ -77,11 +82,6 @@ class ActivityRecognitionService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
     }
-
-
-
-
-
 
     @SuppressLint("VisibleForTests")
     fun sendFakeActivityTransitionEvent() {

@@ -1,10 +1,9 @@
 package com.example.proglam.db
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+
 
 class ActivityTypeRepository(private val activityTypeDao: ActivityTypeDao) {
-
     val getActivityTypes: LiveData<List<ActivityType>> = activityTypeDao.getActivityTypes()
 
     suspend fun addActivityType(activityType: ActivityType) {

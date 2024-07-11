@@ -1,13 +1,15 @@
 package com.example.proglam.ui.startActivity
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +17,6 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.LinearLayout.TEXT_ALIGNMENT_CENTER
 import android.widget.LinearLayout.VERTICAL
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
@@ -26,11 +27,16 @@ import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.proglam.R
 import com.example.proglam.background.activityServices.ActivityRecognitionService
 import com.example.proglam.databinding.FragmentStartActivityBinding
 import com.example.proglam.db.ActivityTypeViewModel
+import com.example.proglam.list.ATRecyclerviewAdapter
+import com.example.proglam.list.ATRecyclerviewInterface
 import com.example.proglam.ui.ongoingActivity.OngoingBaseActivity
 import com.example.proglam.ui.ongoingActivity.OngoingGpsActivity
 import com.example.proglam.ui.ongoingActivity.OngoingGpsPedometerActivity
@@ -38,10 +44,10 @@ import com.example.proglam.ui.ongoingActivity.OngoingPedometerActivity
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 
-class StartActivityFragment : Fragment() {
+class StartActivityFragment : Fragment(), ATRecyclerviewInterface {
     private var _binding: FragmentStartActivityBinding? = null
     private val mStartActivityViewModel: StartActivityViewModel by viewModels()
-    private var isOngoingActivityRunning = false
+    private val mActivityTypeViewModel: ActivityTypeViewModel by viewModels()
     private lateinit var locationManager: LocationManager
 
     private val binding get() = _binding!!
@@ -61,9 +67,19 @@ class StartActivityFragment : Fragment() {
         _binding = FragmentStartActivityBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        setObserver(root)
-        // Fill the view with data
-        populateScrollViewActivityTypes(root)
+
+        val recyclerView = root.findViewById<RecyclerView>(R.id.activityTypes_rv)
+        val adapter = ATRecyclerviewAdapter(
+            requireContext(),
+            this,
+            mActivityTypeViewModel.getActivityTypes,
+            viewLifecycleOwner
+        )
+        recyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.adapter = adapter
+
+        setObservers(root)
         displayActivityDataBox(root)
         setButtonListeners(root)
 
@@ -75,95 +91,21 @@ class StartActivityFragment : Fragment() {
         _binding = null
     }
 
-    private fun setObserver(view: View) {
+    private fun setObservers(view: View) {
         mStartActivityViewModel.autoRec.observe(viewLifecycleOwner) {
-            val sv = view.findViewById<ScrollView>(R.id.activityTypes_sv)
+            val rv = view.findViewById<RecyclerView>(R.id.activityTypes_rv)
             if (it)
-                sv.visibility = ScrollView.INVISIBLE
+                rv.visibility = RecyclerView.INVISIBLE
             else
-                sv.visibility = ScrollView.VISIBLE
+                rv.visibility = RecyclerView.VISIBLE
 
-            view.findViewById<TextView>(R.id.activityDescName_tv).text = ""
-            view.findViewById<TextView>(R.id.activityDescTools_tv).text = ""
-        }
-    }
-
-
-    // Function for the UI
-    private fun populateScrollViewActivityTypes(view: View) {
-        val ll: LinearLayout = view.findViewById(R.id.activityTypes_ll)
-        ll.removeAllViews()
-
-        val mActivityTypeViewModel = ViewModelProvider(this)[ActivityTypeViewModel::class.java]
-        mActivityTypeViewModel.getActivityTypes.observe(viewLifecycleOwner) { at ->
-            val activityTypes = at.sortedBy { it.name }
-            var i = 0
-            for (activityType in activityTypes) {
-                if (i > activityTypes.size)
-                    break
-                i++
-
-                val hll = LinearLayout(activity)
-                val activityTypeBtn = Button(activity)
-                val activityTypeText = TextView(activity)
-
-                activityTypeText.text = activityType.name.toString()
-                activityTypeText.textAlignment = TEXT_ALIGNMENT_CENTER
-                hll.orientation = VERTICAL
-                if (com.example.proglam.utils.System.isNightModeOn(requireContext())) {
-                    val color = ContextCompat.getColor(requireContext(), R.color.gray_700)
-                    hll.setBackgroundColor(color)
-                } else {
-                    val color = ContextCompat.getColor(requireContext(), R.color.gray_200)
-                    hll.setBackgroundColor(color)
-                }
-
-                val context: Context = ll.context
-                //activityTypeBtn.background = ContextCompat.getDrawable(requireContext(), R.drawable.round_button)
-                activityTypeBtn.background = ContextCompat.getDrawable(
-                    requireContext(),
-                    context.resources.getIdentifier(
-                        activityType.iconSrc.toString(),
-                        "drawable",
-                        context.packageName
-                    )
-                )
-
-                val dpInPx = com.example.proglam.utils.System.floatToDP(64F, resources)
-                activityTypeBtn.setLayoutParams(
-                    LinearLayout.LayoutParams(
-                        dpInPx.toInt(),
-                        dpInPx.toInt()
-                    )
-                )
-
-                activityTypeBtn.setOnClickListener {
-                    mStartActivityViewModel.setSelectedActivityTypeName(activityType.name)
-                    mStartActivityViewModel.setSelectedActivityType(activityType)
-                }
-                activityTypeBtn.setOnLongClickListener {
-                    AlertDialog.Builder(context)
-                        .setTitle("Delete activity type")
-                        .setMessage("Are you sure you want to delete \"${activityType.name}\"?")
-                        .setPositiveButton(android.R.string.yes
-                        ) { _, _ ->
-                            mActivityTypeViewModel.removeActivityType(activityType)
-                            Toast.makeText(
-                                requireContext(),
-                                "deleted ${activityType.name}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        .setNegativeButton(android.R.string.no, null)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show()
-                    return@setOnLongClickListener true
-                }
-
-                hll.addView(activityTypeBtn)
-                hll.addView(activityTypeText)
-                ll.addView(hll)
-            }
+            view.findViewById<TextView>(R.id.infoName_tv).text = ""
+            val acDescTV = view.findViewById<TextView>(R.id.infoDesc_tv)
+            acDescTV.text = ""
+            acDescTV.visibility = TextView.GONE
+            val acToolsTV = view.findViewById<TextView>(R.id.infoTools_tv)
+            acToolsTV.text = ""
+            acToolsTV.visibility = TextView.GONE
         }
     }
 
@@ -171,10 +113,14 @@ class StartActivityFragment : Fragment() {
         mStartActivityViewModel.selectedActivityType.observe(
             viewLifecycleOwner
         ) { currentActivityType ->
-            val acNameTV = view.findViewById<TextView>(R.id.activityDescName_tv)
+            val acNameTV = view.findViewById<TextView>(R.id.infoName_tv)
             acNameTV.text = currentActivityType.name
-            acNameTV.textAlignment = TEXT_ALIGNMENT_CENTER
-            acNameTV.textSize = com.example.proglam.utils.System.floatToSP(24F, resources)
+
+            val acDescTV = view.findViewById<TextView>(R.id.infoDesc_tv)
+            if (currentActivityType.desc.isNotEmpty()) {
+                acDescTV.text = currentActivityType.desc
+                acDescTV.visibility = TextView.VISIBLE
+            }
 
             var tools = ""
             when (currentActivityType.tools) {
@@ -183,13 +129,15 @@ class StartActivityFragment : Fragment() {
                 10 -> tools = "pedometer"
                 11 -> tools = "GPS + pedometer"
             }
-            val acToolsTV = view.findViewById<TextView>(R.id.activityDescTools_tv)
-            acToolsTV.text = tools
+            val acToolsTV = view.findViewById<TextView>(R.id.infoTools_tv)
+            if (tools.isNotEmpty()) {
+                acToolsTV.text = tools
+                acToolsTV.visibility = TextView.VISIBLE
+            }
         }
 
         mStartActivityViewModel.autoRec.observe(viewLifecycleOwner) {
             if (it) {
-
                 activity?.startService(Intent(activity, ActivityRecognitionService::class.java))
             } else {
                 activity?.stopService(Intent(activity, ActivityRecognitionService::class.java))
@@ -198,11 +146,11 @@ class StartActivityFragment : Fragment() {
     }
 
 
-    val startForResult = registerForActivityResult(
+    private val startForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            isOngoingActivityRunning = false
+        if (result.resultCode == Activity.RESULT_OK || result.resultCode == Activity.RESULT_CANCELED) {
+            mStartActivityViewModel.isOngoingActivityRunning = false
         }
     }
 
@@ -215,40 +163,70 @@ class StartActivityFragment : Fragment() {
 
         val switch = view.findViewById<SwitchMaterial>(R.id.autoActivityRecognition_switch)
         switch.setOnCheckedChangeListener { _, isChecked ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    arrayOf(
-                        android.Manifest.permission.BODY_SENSORS,
-                        android.Manifest.permission.ACTIVITY_RECOGNITION,
-                        android.Manifest.permission.INTERNET,
-                        android.Manifest.permission.FOREGROUND_SERVICE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION
-                    ),
-                    0
-                )
-            } else {
-                ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    arrayOf(
-                        "BODY_SENSORS",
-                        "ACTIVITY_RECOGNITION",
-                        "INTERNET",
-                        "FOREGROUND_SERVICE_LOCATION",
-                        "ACCESS_COARSE_LOCATION",
-                        "ACCESS_FINE_LOCATION"
-                    ),
-                    0
-                )
-            }
-            if (LocationManagerCompat.isLocationEnabled(locationManager)) {
-                mStartActivityViewModel.autoRec.postValue(isChecked)
-            } else {
-                switch.isChecked = false
-                Toast.makeText(requireContext(), "You need to turn on location", Toast.LENGTH_LONG)
-                    .show()
-            }
+            if (isChecked) {
+                if (
+                    ActivityCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.BODY_SENSORS
+                    ) == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.ACTIVITY_RECOGNITION
+                    ) == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.FOREGROUND_SERVICE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    if (LocationManagerCompat.isLocationEnabled(locationManager)) {
+                        mStartActivityViewModel.autoRec.postValue(true)
+                    } else {
+                        switch.isChecked = false
+                        Toast.makeText(
+                            requireContext(),
+                            "You need to turn on location",
+                            Toast.LENGTH_LONG
+                        )
+                            .show()
+                    }
+                } else {
+                    switch.isChecked = false
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        ActivityCompat.requestPermissions(
+                            requireActivity(),
+                            arrayOf(
+                                Manifest.permission.BODY_SENSORS,
+                                Manifest.permission.ACTIVITY_RECOGNITION,
+                                Manifest.permission.FOREGROUND_SERVICE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ),
+                            0
+                        )
+                    } else {
+                        ActivityCompat.requestPermissions(
+                            requireActivity(),
+                            arrayOf(
+                                "BODY_SENSORS",
+                                "ACTIVITY_RECOGNITION",
+                                "FOREGROUND_SERVICE_LOCATION",
+                                "ACCESS_COARSE_LOCATION",
+                                "ACCESS_FINE_LOCATION"
+                            ),
+                            0
+                        )
+                    }
+                }
+            } else
+                mStartActivityViewModel.autoRec.postValue(false)
         }
     }
 
@@ -260,105 +238,162 @@ class StartActivityFragment : Fragment() {
                 "Already recording activity automatically",
                 Toast.LENGTH_LONG
             ).show()
-        } else if (mStartActivityViewModel.selectedActivityTypeName.value != "-") {
+        } else {
+            if (!mStartActivityViewModel.isOngoingActivityRunning) {
+                mStartActivityViewModel.isOngoingActivityRunning = true
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    arrayOf(
-                        android.Manifest.permission.BODY_SENSORS,
-                        android.Manifest.permission.ACTIVITY_RECOGNITION,
-                        android.Manifest.permission.INTERNET,
-                        android.Manifest.permission.FOREGROUND_SERVICE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION
-                    ),
-                    0
-                )
-            else
-                ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    arrayOf(
-                        "BODY_SENSORS",
-                        "ACTIVITY_RECOGNITION",
-                        "INTERNET",
-                        "FOREGROUND_SERVICE_LOCATION",
-                        "ACCESS_COARSE_LOCATION",
-                        "ACCESS_FINE_LOCATION"
-                    ),
-                    0
-                )
-
-            //if (!isOngoingActivityRunning) {
-            //isOngoingActivityRunning = true
-            var intent = Intent()
-
-            when (mStartActivityViewModel.selectedActivityType.value?.tools) {
-                1 -> {
-                    if (LocationManagerCompat.isLocationEnabled(locationManager)) {
-                        intent = Intent(
-                            activity,
-                            OngoingGpsActivity::class.java
-                        )
-                    } else {
-                        Toast.makeText(
+                if (mStartActivityViewModel.selectedActivityTypeName.value != "-") {
+                    if (
+                        ActivityCompat.checkSelfPermission(
                             requireContext(),
-                            "You need to turn on location",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return
-                    }
-                }
-
-                10 -> {
-                    intent = Intent(
-                        activity,
-                        OngoingPedometerActivity::class.java
-                    )
-                }
-
-                11 -> {
-                    if (LocationManagerCompat.isLocationEnabled(locationManager)) {
-                        intent = Intent(
-                            activity,
-                            OngoingGpsPedometerActivity::class.java
-                        )
-                    } else {
-                        Toast.makeText(
+                            Manifest.permission.BODY_SENSORS
+                        ) == PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(
                             requireContext(),
-                            "You need to turn on location",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return
+                            Manifest.permission.ACTIVITY_RECOGNITION
+                        ) == PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.FOREGROUND_SERVICE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        val intent: Intent
+                        when (mStartActivityViewModel.selectedActivityType.value?.tools) {
+                            1 -> {
+                                if (LocationManagerCompat.isLocationEnabled(locationManager)) {
+                                    intent = Intent(
+                                        activity,
+                                        OngoingGpsActivity::class.java
+                                    )
+                                } else {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "You need to turn on location",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    return
+                                }
+                            }
+
+                            10 -> {
+                                intent = Intent(
+                                    activity,
+                                    OngoingPedometerActivity::class.java
+                                )
+                            }
+
+                            11 -> {
+                                if (LocationManagerCompat.isLocationEnabled(locationManager)) {
+                                    intent = Intent(
+                                        activity,
+                                        OngoingGpsPedometerActivity::class.java
+                                    )
+                                } else {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "You need to turn on location",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    return
+                                }
+                            }
+
+                            else -> {
+                                intent = Intent(
+                                    activity,
+                                    OngoingBaseActivity::class.java
+                                )
+                            }
+                        }
+
+                        intent.putExtra(
+                            "activityType",
+                            mStartActivityViewModel.selectedActivityTypeName.value
+                        )
+                        intent.putExtra("startTime", System.currentTimeMillis().toString())
+                        intent.putExtra("firstTime", true.toString())
+
+                        startForResult.launch(intent)
+                    } else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                            ActivityCompat.requestPermissions(
+                                requireActivity(),
+                                arrayOf(
+                                    Manifest.permission.BODY_SENSORS,
+                                    Manifest.permission.ACTIVITY_RECOGNITION,
+                                    Manifest.permission.FOREGROUND_SERVICE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                ),
+                                0
+                            )
+                        else
+                            ActivityCompat.requestPermissions(
+                                requireActivity(),
+                                arrayOf(
+                                    "BODY_SENSORS",
+                                    "ACTIVITY_RECOGNITION",
+                                    "FOREGROUND_SERVICE_LOCATION",
+                                    "ACCESS_COARSE_LOCATION",
+                                    "ACCESS_FINE_LOCATION"
+                                ),
+                                0
+                            )
                     }
-                }
+                } else
+                    Toast.makeText(
+                        requireContext(),
+                        "You need to choose an activity type",
+                        Toast.LENGTH_SHORT
+                    ).show()
 
-                else -> {
-                    intent = Intent(
-                        activity,
-                        OngoingBaseActivity::class.java
-                    )
-                }
-            }
-
-            intent.putExtra("activityType", mStartActivityViewModel.selectedActivityTypeName.value)
-            intent.putExtra("startTime", System.currentTimeMillis().toString())
-            intent.putExtra("firstTime", true.toString())
-
-            startForResult.launch(intent)
-            /*
             } else
                 Toast.makeText(
                     requireContext(),
                     "An activity is already on",
                     Toast.LENGTH_SHORT
                 ).show()
-             */
-        } else
-            Toast.makeText(
-                requireContext(),
-                "You need to choose an activity type",
-                Toast.LENGTH_SHORT
-            ).show()
+        }
+    }
+
+    override fun onItemClick(pos: Int) {
+        val ats = mActivityTypeViewModel.getActivityTypes.value
+        if (ats != null) {
+            mStartActivityViewModel.setSelectedActivityTypeName(ats[pos].name)
+            mStartActivityViewModel.setSelectedActivityType(ats[pos])
+        }
+    }
+
+    override fun onItemLongClick(pos: Int) {
+        val ats = mActivityTypeViewModel.getActivityTypes.value
+        if (ats != null) {
+            if (ats[pos].name !in arrayOf("run", "sleep", "walk", "rest", "in vehicle"))
+                AlertDialog.Builder(context)
+                    .setTitle("Delete activity type")
+                    .setMessage("Are you sure you want to delete \"${ats[pos].name}\"?")
+                    .setPositiveButton(
+                        android.R.string.yes
+                    ) { _, _ ->
+                        mActivityTypeViewModel.removeActivityType(ats[pos])
+                        Toast.makeText(
+                            requireContext(),
+                            "deleted ${ats[pos].name}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    .setNegativeButton(android.R.string.no, null)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
+        }
+
+        return
     }
 }

@@ -5,27 +5,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ScrollView
-        android:id="@+id/activityTypes_sv"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/activityTypes_cv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:maxHeight="100dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="?attr/colorOnBackground"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/start_btn"
         app:layout_constraintEnd_toEndOf="@id/guideline2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:id="@+id/activityTypes_ll"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/activityTypes_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="horizontal">
-
-        </LinearLayout>
-
-    </ScrollView>
+            android:layout_margin="4dp"
+            android:orientation="horizontal"
+            android:visibility="visible" />
+    </androidx.cardview.widget.CardView>
 
     <Button
         android:id="@+id/start_btn"
@@ -74,7 +78,7 @@
         app:layout_constraintGuide_percent="0.5" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/activityDesc_cv"
+        android:id="@+id/info_cv"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginStart="16dp"
@@ -90,28 +94,40 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/activityDesc_cl"
+            android:id="@+id/info_cl"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-
             <TextView
-                android:id="@+id/activityDescName_tv"
+                android:id="@+id/infoName_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text=""
+                android:textSize="50sp"
+                android:textAlignment="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/activityDescTools_tv"
+                android:id="@+id/infoDesc_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/activityDescName_tv" />
+                app:layout_constraintTop_toBottomOf="@+id/infoName_tv" />
+
+            <TextView
+                android:id="@+id/infoTools_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text=""
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/infoDesc_tv" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 

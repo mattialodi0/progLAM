@@ -10,7 +10,7 @@ object Strings {
 
             while (s >= 3600) {
                 h++
-                s -= 360
+                s -= 3600
             }
             while (s >= 60) {
                 m++
