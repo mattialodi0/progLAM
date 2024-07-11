@@ -3,9 +3,7 @@ package com.example.proglam.ui.ongoingActivity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.proglam.R
 import com.example.proglam.utils.TimerEvent
 import com.example.proglam.background.activityServices.BaseService
-import com.example.proglam.background.activityServices.GpsPedometerService
 import com.example.proglam.background.activityServices.GpsService
 import com.example.proglam.databinding.ActivityOngoingBinding
 import com.example.proglam.db.ActivityRecord

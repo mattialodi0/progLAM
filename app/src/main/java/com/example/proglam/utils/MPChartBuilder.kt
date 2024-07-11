@@ -3,9 +3,6 @@ package com.example.proglam.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.view.View
-import android.widget.FrameLayout
-import com.example.proglam.R
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.PieChart
@@ -24,6 +21,7 @@ import com.github.mikephil.charting.data.RadarDataSet
 import com.github.mikephil.charting.data.RadarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
+
 
 object MPChartBuilder {
     @SuppressLint("ResourceType")
@@ -56,42 +54,6 @@ object MPChartBuilder {
         barChart.description.text = " "
         barChart.axisRight.setDrawLabels(false)
         barChart.xAxis.valueFormatter = IndexAxisValueFormatter(labels.toList())
-        barChart.legend.isEnabled = false
-        barChart.animateY(1000)
-
-        return barChart
-    }
-
-    @SuppressLint("ResourceType")
-    fun buildBarChart(context: Context, data: Array<Float>): BarChart {
-        val barChart = BarChart(context)
-        val list: ArrayList<BarEntry> = ArrayList()
-
-        for (i in data.indices) {
-            list.add(BarEntry((i + 2).toFloat(), data[i]))
-        }
-
-        val barDataset = BarDataSet(list, "List")
-        barDataset.setColors(ColorTemplate.MATERIAL_COLORS, 255)
-
-        if (System.isNightModeOn(context)) {
-            barDataset.valueTextColor = Color.LTGRAY
-            barChart.axisLeft.textColor = Color.LTGRAY
-            barChart.xAxis.textColor = Color.LTGRAY
-            barChart.xAxis.axisLineColor = Color.LTGRAY
-        } else {
-            barDataset.valueTextColor = Color.WHITE
-            barChart.axisLeft.textColor = Color.WHITE
-            barChart.xAxis.textColor = Color.WHITE
-            barChart.xAxis.axisLineColor = Color.WHITE
-        }
-
-        val barData = BarData(barDataset)
-        barChart.setFitBars(true)
-        barChart.data = barData
-        barChart.description.text = " "
-        barChart.axisRight.setDrawLabels(false)
-        barChart.xAxis.setDrawLabels(false)
         barChart.legend.isEnabled = false
         barChart.animateY(1000)
 

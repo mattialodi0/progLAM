@@ -1,19 +1,17 @@
 package com.example.proglam.ui.activityRecord
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.proglam.R
@@ -93,6 +91,7 @@ class ActivityRecordFragment : Fragment() {
         }
     }
 
+    @SuppressLint("DiscouragedApi")
     private fun setObservers(view: View) {
         mActivityRecordViewModel.getActivityById.observe(viewLifecycleOwner) { activityRecord ->
             mActivityTypeViewModel.findActivityTypeByName(activityRecord.type)
@@ -143,12 +142,6 @@ class ActivityRecordFragment : Fragment() {
                 }
             )
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        //val mapFragment = childFragmentManager.findFragmentById(R.id.activityRecord_map) as SupportMapFragment?
-        //mapFragment?.getMapAsync(callback)
     }
 }
 

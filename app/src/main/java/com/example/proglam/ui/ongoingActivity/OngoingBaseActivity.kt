@@ -21,8 +21,6 @@ import com.google.android.material.button.MaterialButton
 
 
 class OngoingBaseActivity : AppCompatActivity() {
-    //private lateinit var binding: ActivityOngoingBinding
-
     private var isTimerRunning = false
 
     private var activityType: String = ""

@@ -1,12 +1,12 @@
 package com.example.proglam.utils
 
-import android.util.Log
 import com.example.proglam.db.ActivityRecord
 import com.example.proglam.db.ActivityTypeWithActivityRecord
 import com.example.proglam.db.TypeDailyTimeTuple
 import com.example.proglam.db.TypeDurationTuple
 import com.google.gson.Gson
 import java.lang.System
+
 
 object ProcessDBData {
 

@@ -2,30 +2,23 @@ package com.example.proglam.ui.dashboard
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.proglam.R
 import com.example.proglam.databinding.FragmentDashboardBinding
 import com.example.proglam.db.ActivityRecordViewModel
-import com.example.proglam.list.ARModel
 import com.example.proglam.list.ARRecyclerviewAdapter
 import com.example.proglam.list.ARRecyclerviewInterface
-import com.example.proglam.utils.Strings
-import com.example.proglam.utils.System
 import com.example.proglam.utils.TextDrawable
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.color.MaterialColors
 
 
 class DashboardFragment : Fragment(), ARRecyclerviewInterface {

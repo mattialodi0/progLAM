@@ -17,6 +17,7 @@ import com.example.proglam.ui.ongoingActivity.OngoingBaseActivity
 import com.example.proglam.R
 import com.example.proglam.utils.TimerEvent
 import com.example.proglam.utils.ActivityService
+import com.example.proglam.utils.Notifications
 import com.example.proglam.utils.Strings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -106,7 +107,7 @@ open class BaseService : LifecycleService(), ActivityService {
     }
 
     override fun getNotificationBuilder(): NotificationCompat.Builder =
-        NotificationCompat.Builder(this, "ongoing-channel")
+        NotificationCompat.Builder(this, Notifications.ONGOING_CHANNEL_ID)
             .setAutoCancel(false)
             .setOngoing(true)
             .setOnlyAlertOnce(true)

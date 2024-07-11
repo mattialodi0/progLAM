@@ -15,23 +15,23 @@ interface ActivityRecordDao {
     @Query("DELETE FROM activityRecord_table WHERE id = :id")
     fun deleteActivityRecord(id: Int)
 
-    @Query("SELECT * FROM activityRecord_table")
+    @Query("SELECT * FROM activityRecord_table WHERE type != 'none'")
     fun getActivityRecords(): LiveData<List<ActivityRecord>>
 
-    @Query("SELECT COUNT(*) FROM activityRecord_table WHERE startTime > :todayTimestamp")
+    @Query("SELECT COUNT(*) FROM activityRecord_table WHERE startTime > :todayTimestamp AND type != 'none'")
     fun getTodayActivitiesNumber(todayTimestamp: Long): LiveData<Int>
 
-    @Query("SELECT * FROM activityRecord_table WHERE startTime > :todayTimestamp")
+    @Query("SELECT * FROM activityRecord_table WHERE startTime > :todayTimestamp AND type != 'none'")
     fun getTodayActivitiesList(todayTimestamp: Long): List<ActivityRecord>
 
 
-    @Query("SELECT * FROM activityRecord_table ORDER BY startTime DESC LIMIT :limit")
+    @Query("SELECT * FROM activityRecord_table  WHERE type != 'none' ORDER BY startTime DESC LIMIT :limit")
     fun getRecentActivityRecords(limit: Int): LiveData<List<ActivityRecord>>
 
-    @Query("SELECT * FROM activityRecord_table WHERE startTime > :from")
+    @Query("SELECT * FROM activityRecord_table WHERE startTime > :from AND type != 'none'")
     fun getPastDaysActivities(from: Long): LiveData<List<ActivityRecord>>
 
-    @Query("SELECT * FROM activityRecord_table WHERE :from < startTime AND startTime < :to")
+    @Query("SELECT * FROM activityRecord_table WHERE :from < startTime AND startTime < :to AND type != 'none'")
     fun getActivitiesFromTo(from: Long, to: Long): List<ActivityRecord>
 
     @Query("SELECT * FROM activityRecord_table WHERE id = :id")
@@ -39,7 +39,7 @@ interface ActivityRecordDao {
 
     // chart queries
     @Transaction
-    @Query("SELECT * FROM activityRecord_table WHERE startTime > :from")
+    @Query("SELECT * FROM activityRecord_table WHERE startTime > :from AND type != 'none'")
     //@Query("SELECT type, finishTime - startTime as duration  FROM activityRecord_table WHERE startTime > :from")
     fun getActivitiesWithType(from: Long = 0): List<ActivityTypeWithActivityRecord>
 

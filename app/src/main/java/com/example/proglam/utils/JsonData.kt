@@ -2,6 +2,7 @@ package com.example.proglam.utils
 
 import com.google.gson.annotations.SerializedName
 
+
 class JsonData(
     p: ArrayList<Pair<Double, Double>>,
     s: Int

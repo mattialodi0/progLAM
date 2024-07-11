@@ -12,8 +12,6 @@ class StartActivityViewModel : ViewModel() {
     val selectedActivityTypeName = MutableLiveData("-")
     val selectedActivityType = MutableLiveData<ActivityType>()
 
-
-
     fun setSelectedActivityTypeName(activityType: String) {
         this.selectedActivityTypeName.postValue(activityType)
     }

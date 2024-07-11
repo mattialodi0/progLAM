@@ -3,12 +3,10 @@ package com.example.proglam.ui.ongoingActivity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.proglam.R
 import com.example.proglam.utils.TimerEvent
@@ -89,7 +87,6 @@ class OngoingGpsPedometerActivity : AppCompatActivity() {
             finish()
         }
     }
-
 
     private fun setObservers() {
         BaseService.timerEvent.observe(this) {

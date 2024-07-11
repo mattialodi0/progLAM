@@ -4,11 +4,9 @@ import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.util.TypedValue
-import java.security.AccessController.getContext
 
 
 object System {
-
     fun isNightModeOn(context: Context): Boolean {
         val nightModeFlags: Int = context.resources.configuration.uiMode and
                 Configuration.UI_MODE_NIGHT_MASK

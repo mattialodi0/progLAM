@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
 import com.example.proglam.R
 import com.example.proglam.ui.ongoingActivity.OngoingGpsPedometerActivity
+import com.example.proglam.utils.Notifications
 
 open class GpsPedometerService : GpsService(), SensorEventListener {
 
@@ -48,7 +49,7 @@ open class GpsPedometerService : GpsService(), SensorEventListener {
     }
 
     override fun getNotificationBuilder(): NotificationCompat.Builder =
-        NotificationCompat.Builder(this, "ongoing-channel")
+        NotificationCompat.Builder(this, Notifications.ONGOING_CHANNEL_ID)
             .setAutoCancel(false)
             .setOngoing(true)
             .setOnlyAlertOnce(true)

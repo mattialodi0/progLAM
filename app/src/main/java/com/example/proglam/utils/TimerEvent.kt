@@ -1,7 +1,7 @@
 package com.example.proglam.utils
 
 sealed class TimerEvent {
-    object START : TimerEvent()
-    object END : TimerEvent()
-    object ABORT : TimerEvent()
+    data object START : TimerEvent()
+    data object END : TimerEvent()
+    data object ABORT : TimerEvent()
 }

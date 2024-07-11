@@ -10,6 +10,7 @@ import com.example.proglam.R
 import com.example.proglam.ui.ongoingActivity.OngoingGpsActivity
 import com.example.proglam.utils.DefaultLocationClient
 import com.example.proglam.utils.LocationClient
+import com.example.proglam.utils.Notifications
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +60,7 @@ open class GpsService: BaseService() {
     }
 
     override fun getNotificationBuilder(): NotificationCompat.Builder =
-        NotificationCompat.Builder(this, "ongoing-channel")
+        NotificationCompat.Builder(this, Notifications.ONGOING_CHANNEL_ID)
             .setAutoCancel(false)
             .setOngoing(true)
             .setOnlyAlertOnce(true)

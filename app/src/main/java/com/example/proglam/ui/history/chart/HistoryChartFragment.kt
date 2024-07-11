@@ -1,9 +1,7 @@
 package com.example.proglam.ui.history.chart
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,33 +10,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.navGraphViewModels
 import com.example.proglam.R
-import com.example.proglam.db.ActivityRecord
 import com.example.proglam.db.ActivityRecordViewModel
-import com.example.proglam.db.ActivityTypeWithActivityRecord
 import com.example.proglam.ui.history.HistoryViewModel
 import com.example.proglam.utils.MPChartBuilder.buildBarChart
 import com.example.proglam.utils.MPChartBuilder.buildPieChart
 import com.example.proglam.utils.MPChartBuilder.buildRadarChart
 import com.example.proglam.utils.ProcessDBData
-import com.example.proglam.utils.System
-import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.charts.RadarChart
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.data.RadarData
-import com.github.mikephil.charting.data.RadarDataSet
-import com.github.mikephil.charting.data.RadarEntry
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.github.mikephil.charting.utils.ColorTemplate
 
 
 class HistoryChartFragment : Fragment() {

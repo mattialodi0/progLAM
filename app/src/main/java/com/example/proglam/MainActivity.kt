@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
             intent1,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
         )
-        //mAlarmManager.cancel(pendingIntent1)
+        mAlarmManager.cancel(pendingIntent1)
         mAlarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
             calendar1.getTimeInMillis(),
@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity() {
             intent2,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
         )
-        //mAlarmManager.cancel(pendingIntent2)
+        mAlarmManager.cancel(pendingIntent2)
         if (mAlarmManager.canScheduleExactAlarms())
             mAlarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC,
