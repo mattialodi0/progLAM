@@ -14,34 +14,32 @@ import com.example.proglam.R
 import com.example.proglam.ui.ongoingActivity.OngoingPedometerActivity
 import com.example.proglam.utils.Notifications
 
-open class PedometerService: BaseService(), SensorEventListener {
+open class PedometerService : BaseService(), SensorEventListener {
 
     companion object {
         val stepsTotal = MutableLiveData<Int>()
         var stepsPrevious = 0
     }
 
-
     private var sensorManager: SensorManager? = null
-    private var setted = false
 
     override fun onCreate() {
         super.onCreate()
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-            if(stepSensor == null) {
+        if (stepSensor == null) {
             Toast.makeText(this, "No step sensor on device", Toast.LENGTH_SHORT).show()
-        }
-        else {
+        } else {
             sensorManager?.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_UI)
         }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        stepsTotal.postValue(event!!.values[0].toInt())
-        if(!setted) {
-            stepsPrevious = event.values[0].toInt()
-            setted = true
+        if(event != null) {
+            stepsTotal.postValue(event.values[0].toInt())
+            if (stepsPrevious == 0) {
+                stepsPrevious = event.values[0].toInt()
+            }
         }
     }
 
@@ -54,7 +52,7 @@ open class PedometerService: BaseService(), SensorEventListener {
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setSmallIcon(R.drawable.ic_activitytype_generic)
-            .setContentTitle("Run is active")
+            .setContentTitle("Tracking ${if(activityType != "") activityType else "an activity"}")
             .setContentText("00:00:00")
             .setContentIntent(
                 PendingIntent.getActivity(

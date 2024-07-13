@@ -12,10 +12,7 @@ import com.example.proglam.db.ActivityDatabase
 import com.example.proglam.db.ActivityRecord
 import com.example.proglam.utils.ActivityTransitionsUtil
 import com.example.proglam.utils.Notifications
-import com.google.android.gms.location.ActivityRecognition
-import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.ActivityTransitionResult
-import com.google.android.gms.location.DetectedActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -24,64 +21,39 @@ import java.util.Date
 import java.util.Locale
 
 
-class ActivityRecognitionBroadcastReceiver : BroadcastReceiver() {
+class ActivityTransitionBroadcastReceiver : BroadcastReceiver() {
     companion object {
         @JvmStatic
         private var savedStartTime = 0L
-        @JvmStatic
-        private var activityType = ""
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == "START_RECOGNITION") {
-            savedStartTime = 0L
-            activityType = ""
-        } else if (intent.action == "STOP_RECOGNITION") {
-            if (activityType != "") {
-                val startTime = savedStartTime
-                val finishTime = System.currentTimeMillis()
 
-                if (finishTime - startTime >= 60000) {
-                    val newActivityRecord = ActivityRecord(
-                        0,
-                        activityType,
-                        startTime,
-                        finishTime,
-                        "{}"
-                    )
-                    saveActivityRecord(context, newActivityRecord)
-                    sendNotification(context, activityType, 1)
-                } else
-                    sendNotification(context, activityType, 2)
+        if (ActivityTransitionResult.hasResult(intent)) {
+            val result = ActivityTransitionResult.extractResult(intent)
+            result?.let {
+                result.transitionEvents.forEach { event ->
 
-                savedStartTime = 0L
-                activityType = ""
-            }
-        } else if (ActivityRecognitionResult.hasResult(intent)) {
-            val result = ActivityRecognitionResult.extractResult(intent)
-            if (result != null) {
-                val type = when (result.mostProbableActivity.type) {
-                    DetectedActivity.IN_VEHICLE -> "in vehicle"
-                    DetectedActivity.ON_BICYCLE -> "in vehicle"
-                    DetectedActivity.RUNNING -> "run"
-                    DetectedActivity.WALKING -> "walk"
-                    DetectedActivity.ON_FOOT -> "rest"
-                    DetectedActivity.STILL -> "rest"
-                    else -> "none"
-                }
-                val confidence = result.mostProbableActivity.confidence
+                    val activityType = ActivityTransitionsUtil.toActivityString(event.activityType)
+                    val transitionType =
+                        ActivityTransitionsUtil.toTransitionType(event.transitionType)
+                    val info =
+                        "Transition: " + activityType +
+                                " (" + transitionType + ")" + "   " +
+                                SimpleDateFormat("HH:mm:ss", Locale.ITALY).format(Date())
 
-                if (confidence >= 50 && type != "none") {
-                    val info = "Detection: " + type + " (" + confidence + ")" + "   " +
-                            SimpleDateFormat("HH:mm:ss", Locale.ITALY).format(Date())
                     Log.i("ActivityRecognitionBroadcastReceiver", info)
 
-                    if (activityType == "") {
-                        activityType = type
-                        savedStartTime = System.currentTimeMillis()
-                    } else if (type != activityType) {
+                    if (transitionType == "ENTER") {
+                        //sendNotification(context, activityType, 0)
+                        val diff = SystemClock.elapsedRealtimeNanos() / 1000000 - System.currentTimeMillis()
+                        savedStartTime = event.elapsedRealTimeNanos / 1000000 - diff
+                    }
+                    else if (transitionType == "EXIT") {
                         val startTime = savedStartTime
-                        val finishTime = System.currentTimeMillis()
+                        savedStartTime = 0L
+                        val diff = SystemClock.elapsedRealtimeNanos() / 1000000 - System.currentTimeMillis()
+                        val finishTime = event.elapsedRealTimeNanos / 1000000 - diff
 
                         if (finishTime - startTime >= 60000) {
                             val newActivityRecord = ActivityRecord(
@@ -93,16 +65,13 @@ class ActivityRecognitionBroadcastReceiver : BroadcastReceiver() {
                             )
                             saveActivityRecord(context, newActivityRecord)
                             sendNotification(context, activityType, 1)
-                        }
-
-                        activityType = type
-                        savedStartTime = System.currentTimeMillis()
+                        } else
+                            sendNotification(context, activityType, 2)
                     }
                 }
             }
         }
     }
-
 
     private fun sendNotification(context: Context, activityType: String, transition: Int) {
         val notificationManager =

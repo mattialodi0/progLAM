@@ -1,14 +1,15 @@
 package com.example.proglam.utils
 
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
 
 
 class JsonData(
-    p: ArrayList<Pair<Double, Double>>,
+    p: ArrayList<LatLng>,
     s: Int
 ) {
     @SerializedName("positions")
-    val positions: ArrayList<Pair<Double, Double>> = p
+    val positions: ArrayList<LatLng> = p
     @SerializedName("steps")
     val steps: Int = s
 }

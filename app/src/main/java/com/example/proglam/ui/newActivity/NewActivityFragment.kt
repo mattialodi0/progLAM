@@ -28,7 +28,6 @@ class NewActivityFragment : Fragment() {
     private var tool2: Boolean = false
 
 
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

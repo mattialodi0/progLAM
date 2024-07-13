@@ -1,5 +1,6 @@
 package com.example.proglam.utils
 
+import android.util.Log
 import com.example.proglam.db.ActivityRecord
 import com.example.proglam.db.ActivityTypeWithActivityRecord
 import com.example.proglam.db.TypeDailyTimeTuple
@@ -63,10 +64,10 @@ object ProcessDBData {
             }
 
             1 -> {
-                steps = arrayListOf(0F, 0F, 0F, 0F)
+                steps = arrayListOf(0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F)
                 //labels = arrayListOf("","", "last week", "this week")
                 for (ar in a) {
-                    val i = 3 - ((System.currentTimeMillis() - ar.startTime) / (86400000L * 7))
+                    val i = 27 - ((System.currentTimeMillis() - ar.startTime) / (86400000L))
                     steps[i.toInt()] =
                         steps[i.toInt()] + Gson().fromJson(ar.toolData, JsonData::class.java).steps
                 }
@@ -150,9 +151,14 @@ object ProcessDBData {
             labels.add("other")
         }
 
+        // formatting to %
         val formattedArr = ArrayList<Float>(5)
+        var s = 0F
         for(a in arr) {
-            formattedArr.add((a*100).toInt().toFloat())
+            s += a
+        }
+        for(a in arr) {
+            formattedArr.add((a*100/s))
         }
 
         return Pair(formattedArr.toTypedArray(), labels)

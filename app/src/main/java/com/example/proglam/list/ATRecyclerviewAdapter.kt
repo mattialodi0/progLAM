@@ -32,6 +32,7 @@ class ATRecyclerviewAdapter(
         this.context = context
 
         liveDataToObserve.observe(lifecycleOwner) { ats ->
+            atModels.clear()
             if (ats != null && ats.isNotEmpty()) {
                 for (a in ats) {
                     atModels.add(ATModel(a.name, a.iconSrc))

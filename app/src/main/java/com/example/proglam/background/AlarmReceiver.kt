@@ -31,31 +31,31 @@ class AlarmReceiver : BroadcastReceiver() {
             } else if (intent.action == "REGISTER_NONE_ACTIVITY")
                 registerNoneActivity(context)
         }
-
-        Log.e("AlarmReceiver", "Null intent")
     }
 
     private fun registerNoneActivity(context: Context) {
         fun callback() {
             val thread = Thread {
                 val db = ActivityDatabase.getDatabase(context)
-                val startTime = System.currentTimeMillis() - (12 * 3600 * 1000 - 10 * 60 * 1000)
+                val startTime = System.currentTimeMillis() - ((24 * 3600 * 1000) - (10 * 60 * 1000))
                 val todayActivities = db.activityRecordDao().getTodayActivitiesList(startTime)
                 val ars: List<ActivityRecord> = todayActivities
-                Log.d("nnn", ars.toString())
 
                 var sum = 0L
                 for (a in ars) {
                     sum += a.finishTime - a.startTime
                 }
-                val noneTime = 24 * 3600 * 1000 - sum
-                Log.d("nnn", noneTime.toString())
+                var noneTime = ((24 * 3600 * 1000) - (10 * 60 * 1000)) - sum
+                if(noneTime < 0) noneTime = 0
+                else if(noneTime > 86400000L) noneTime = 86400000L
 
+                Log.i("AlarmReceiver", "Registered a none activity of ${noneTime} ms")
                 db.activityRecordDao().addActivityRecord(
                     ActivityRecord(
                         0,
                         "none",
-                        System.currentTimeMillis() - noneTime, System.currentTimeMillis(),
+                        System.currentTimeMillis() - noneTime,
+                        System.currentTimeMillis(),
                         "{}"
                     )
                 )

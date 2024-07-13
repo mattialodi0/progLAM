@@ -3,6 +3,7 @@ package com.example.proglam.ui.activityRecord
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,7 @@ import com.example.proglam.utils.Strings
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
@@ -34,34 +36,35 @@ import java.util.Locale
 class ActivityRecordFragment : Fragment() {
 
     private val callback = OnMapReadyCallback { googleMap ->
-        if (toolsObj.positions.size > 1) {
-            val options = PolylineOptions().width(5f).color(Color.RED).geodesic(true)
-            for (p in toolsObj.positions) {
-                options.add(LatLng(p.first, p.second))
+        try {
+            if (toolsObj == null)
+                toolsObj = JsonData(arrayListOf(), 0)
+
+            if (toolsObj.positions != null) {
+                val update = CameraUpdateFactory.newLatLngZoom(toolsObj.positions[0], 16f)
+                googleMap.addMarker(MarkerOptions().position(toolsObj.positions[0]).title("geolocation").icon(
+                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)))
+                googleMap.moveCamera(update)
+                googleMap.animateCamera(update)
             }
-            googleMap.addPolyline(options)
-            googleMap.moveCamera(
-                CameraUpdateFactory.newLatLng(
-                    LatLng(
-                        toolsObj.positions[0].first,
-                        toolsObj.positions[0].second
-                    )
-                )
-            )
-            googleMap.animateCamera(CameraUpdateFactory.zoomTo(16.0f));
-        } else {
-            val myPos = LatLng(toolsObj.positions[0].first, toolsObj.positions[0].second)
-            googleMap.addMarker(MarkerOptions().position(myPos).title("geolocation"))
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPos))
-            googleMap.animateCamera(CameraUpdateFactory.zoomTo(16.0f));
+            if(toolsObj.positions.size > 1){
+                val options = PolylineOptions().width(5f).color(Color.RED).geodesic(true)
+                for (p in toolsObj.positions) {
+                    options.add(p)
+                }
+                googleMap.addPolyline(options)
+                val update = CameraUpdateFactory.newLatLngZoom(toolsObj.positions[0], 16f)
+                googleMap.moveCamera(update)
+                googleMap.animateCamera(update)
+            }
+        } catch (e: NullPointerException) {
+            Log.i("ActivityRecordFragment", "NullPtr Exception in map callback")
         }
     }
 
-
     private val mActivityRecordViewModel: ActivityRecordViewModel by viewModels()
     private val mActivityTypeViewModel: ActivityTypeViewModel by viewModels()
-    private var toolsObj = JsonData(arrayListOf(), 0)
-
+    private var toolsObj: JsonData = JsonData(arrayListOf(), 0)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -105,25 +108,31 @@ class ActivityRecordFragment : Fragment() {
             date.text = SimpleDateFormat("dd/M/yyyy", Locale.ITALY).format(activityRecord.startTime)
 
 
-            toolsObj = Gson().fromJson(activityRecord.toolData, JsonData::class.java)
-            if (toolsObj.positions != null) {
-                if (toolsObj.positions.isNotEmpty()) {
+            try {
+                toolsObj = Gson().fromJson(activityRecord.toolData, JsonData::class.java)
+                if (toolsObj == null)
+                    toolsObj = JsonData(arrayListOf(), 0)
+
+                if (toolsObj.positions != null && toolsObj.positions.isNotEmpty()) {
+                    val mapView = view.findViewById<FragmentContainerView>(R.id.ar_map)
+                    mapView.visibility = View.VISIBLE
                     val mapFragment =
                         childFragmentManager.findFragmentById(R.id.ar_map) as SupportMapFragment?
                     mapFragment?.getMapAsync(callback)
+                    val tv = view.findViewById<TextView>(R.id.arMap_tv)
+                    tv.visibility = View.VISIBLE
                 }
-            } else {
-                val mapFragmentContainerView = view.findViewById<FragmentContainerView>(R.id.ar_map)
-                mapFragmentContainerView.visibility = View.GONE
-                val tv = view.findViewById<TextView>(R.id.arMap_tv)
-                tv.visibility = View.GONE
 
-            }
+                if (toolsObj == null)
+                    toolsObj = JsonData(arrayListOf(), 0)
 
-            if (toolsObj.steps > 0) {
-                val tv = view.findViewById<TextView>(R.id.arSteps_tv)
-                tv.visibility = View.VISIBLE
-                tv.text = "steps: \t\t ${toolsObj.steps}"
+                if (toolsObj.steps > 0) {
+                    val tv = view.findViewById<TextView>(R.id.arSteps_tv)
+                    tv.visibility = View.VISIBLE
+                    tv.text = String.format(resources.getString(R.string.steps_num), toolsObj.steps)
+                }
+            } catch (e: NullPointerException) {
+                Log.i("ActivityRecordFragment", "NullPtr Exception extracting JSON data")
             }
         }
 

@@ -2,8 +2,6 @@ package com.example.proglam.background.activityServices
 
 import android.app.PendingIntent
 import android.content.Intent
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
 import com.example.proglam.R
@@ -12,6 +10,7 @@ import com.example.proglam.utils.DefaultLocationClient
 import com.example.proglam.utils.LocationClient
 import com.example.proglam.utils.Notifications
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -21,10 +20,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 
-open class GpsService: BaseService() {
+open class GpsService : BaseService() {
     companion object {
-        private var _locations: ArrayList<Pair<Double, Double>> = arrayListOf()
-        val locations: MutableLiveData<ArrayList<Pair<Double, Double>>> = MutableLiveData(arrayListOf(Pair(0.0, 0.0)))
+        private var _locations: ArrayList<LatLng> = arrayListOf()
+        val locations: MutableLiveData<ArrayList<LatLng>> =
+            MutableLiveData(arrayListOf(LatLng(0.0, 0.0)))
     }
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -43,18 +43,19 @@ open class GpsService: BaseService() {
         serviceScope.cancel()
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     override fun start() {
         super.start()
         locationClient
-            .getLocationUpdates(1000L)      // to change to 10000L
+            .getLocationUpdates(5000L)
             .catch { e ->
                 e.printStackTrace()
                 abort(e)
             }
             .onEach { location ->
-                _locations.add(Pair(location.latitude, location.longitude))
-                locations.postValue(_locations)
+                if (_locations.isEmpty() || !(_locations.last().latitude == location.latitude && _locations.last().longitude == location.longitude)) {
+                    _locations.add(LatLng(location.latitude, location.longitude))
+                    locations.postValue(_locations)
+                }
             }
             .launchIn(serviceScope)
     }
@@ -65,7 +66,7 @@ open class GpsService: BaseService() {
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setSmallIcon(R.drawable.ic_activitytype_generic)
-            .setContentTitle("Run is active")
+            .setContentTitle("Tracking ${if (activityType != "") activityType else "an activity"}")
             .setContentText("00:00:00")
             .setContentIntent(
                 PendingIntent.getActivity(

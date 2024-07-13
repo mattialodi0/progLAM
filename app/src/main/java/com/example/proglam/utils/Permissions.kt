@@ -10,7 +10,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 class Permissions {
-
     companion object {
         fun needsPermission(activity: Activity, permission: String) {
             if(!hasPermission(permission)) {

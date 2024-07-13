@@ -25,27 +25,20 @@ class TextDrawable(text: String, color: Int, size: Float) : Drawable() {
     }
 
     private val textWidth = Rect().let {
-        paint.getTextBounds(text, 0, when (text.contains("\n")) {
-            true -> text.indexOf("\n")
-            false -> text.length
-        }, it)
+        paint.getTextBounds(
+            text, 0, when (text.contains("\n")) {
+                true -> text.indexOf("\n")
+                false -> text.length
+            }, it
+        )
 
         it.right
     }
 
-    private var staticLayout = when {
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.M -> {
-            StaticLayout(text, 0, text.length, paint, textWidth,
-                Layout.Alignment.ALIGN_NORMAL, StaticLayout.DEFAULT_LINESPACING_MULTIPLIER, StaticLayout.DEFAULT_LINESPACING_ADDITION,
-                true
-            )
-        }
-        else -> {
-            StaticLayout.Builder
-                .obtain(text, 0, text.length, paint, textWidth)
-                .build()
-        }
-    }
+    private var staticLayout =
+        StaticLayout.Builder
+            .obtain(text, 0, text.length, paint, textWidth)
+            .build()
 
     override fun draw(canvas: Canvas) {
         canvas.save()
@@ -70,7 +63,8 @@ class TextDrawable(text: String, color: Int, size: Float) : Drawable() {
         paint.setColorFilter(cf)
     }
 
-    @Deprecated("Deprecated in Java",
+    @Deprecated(
+        "Deprecated in Java",
         ReplaceWith("PixelFormat.TRANSLUCENT", "android.graphics.PixelFormat")
     )
     override fun getOpacity(): Int {

@@ -1,8 +1,20 @@
 <resources>
     <string name="app_name">Activity Tracker</string>
+    <!-- menu -->
     <string name="title_start_activity">StartActivity</string>
     <string name="title_dashboard">Home</string>
     <string name="title_history">History</string>
+
+    <string name="steps_num">steps: \t\t %1$d</string>
+    <string name="location">location: \t\t %1$f,%2$f</string>
+    <string name="steps_and_location">steps: \t\t %1$d \n location: \t\t %2$f,%3$f</string>
+
+    <string-array name="history_chart_types">
+        <item>minutes</item>
+        <item>steps</item>
+        <item>activities</item>
+        <item>movement</item>
+    </string-array>
 
     <string-array name="time_ranges">
         <item>last week</item>

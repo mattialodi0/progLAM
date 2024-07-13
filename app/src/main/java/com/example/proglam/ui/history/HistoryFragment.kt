@@ -64,26 +64,12 @@ class HistoryFragment : Fragment() {
         }
     }
     private fun setObservers(view: View) {
-        mHistoryViewModel.timeRange.observe(viewLifecycleOwner, Observer {timeRange ->
-        })
-
+        val titles = resources.getStringArray(R.array.history_chart_types)
         mHistoryViewModel.chartType.observe(viewLifecycleOwner) {
             when (it) {
-                null -> {
-                    view.findViewById<TextView>(R.id.chartTitle_tv).text = "minutes"
-                }
-                0 -> {
-                    view.findViewById<TextView>(R.id.chartTitle_tv).text = "minutes"
-                }
-                1 -> {
-                    view.findViewById<TextView>(R.id.chartTitle_tv).text = "steps"
-                }
-                2 -> {
-                    view.findViewById<TextView>(R.id.chartTitle_tv).text = "activities %"
-                }
-                3 -> {
-                    view.findViewById<TextView>(R.id.chartTitle_tv).text = "movement"
-                }
+                null -> view.findViewById<TextView>(R.id.chartTitle_tv).text = titles[0]
+                else -> view.findViewById<TextView>(R.id.chartTitle_tv).text = titles[it]
+
             }
         }
 

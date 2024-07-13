@@ -1,11 +1,10 @@
 package com.example.proglam.ui.ongoingActivity
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.proglam.R
@@ -18,7 +17,9 @@ import com.example.proglam.databinding.ActivityOngoingBinding
 import com.example.proglam.db.ActivityRecord
 import com.example.proglam.db.ActivityRecordViewModel
 import com.example.proglam.utils.ActivityService
+import com.example.proglam.utils.JsonData
 import com.example.proglam.utils.Strings
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 
@@ -32,7 +33,6 @@ class OngoingGpsPedometerActivity : AppCompatActivity() {
     private var activityToolsData: String = "{}"
     private var startTime: String = ""
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -46,7 +46,7 @@ class OngoingGpsPedometerActivity : AppCompatActivity() {
             else
                 this.startTime = System.currentTimeMillis().toString()
             if(extras.getString("firstTime") != null)
-                callForegroundService(ActivityService.Actions.START.toString())
+                callForegroundService(ActivityService.Actions.START.toString(), activityType)
         }
 
         setObservers()
@@ -76,6 +76,13 @@ class OngoingGpsPedometerActivity : AppCompatActivity() {
     private fun setBtnListeners() {
         val stopBtn = findViewById<MaterialButton>(R.id.stop_btn)
         stopBtn.setOnClickListener {
+            try {
+                val pos = if(GpsService.locations.value != null) GpsService.locations.value!! else ArrayList<LatLng>()
+                val steps = if(GpsPedometerService.stepsTotal.value != null) GpsPedometerService.stepsTotal.value!! - GpsPedometerService.stepsPrevious else 0
+                activityToolsData = Gson().toJson(JsonData(pos, steps))
+            } catch (e: NullPointerException) {
+                activityToolsData = "{}"
+            }
             callForegroundService(ActivityService.Actions.STOP.toString())
             registerActivityRecord()
             finish()
@@ -97,8 +104,6 @@ class OngoingGpsPedometerActivity : AppCompatActivity() {
 
                 is TimerEvent.END -> {
                     isTimerRunning = false
-                    activityToolsData = Gson().toJson(GpsService.locations.value) + " " +
-                            Gson().toJson((GpsPedometerService.stepsTotal.value!! - GpsPedometerService.stepsPrevious))
                     finish()
                 }
                 is TimerEvent.ABORT -> {
@@ -118,21 +123,23 @@ class OngoingGpsPedometerActivity : AppCompatActivity() {
             val info: TextView = findViewById(R.id.info_tv)
             val str = info.text
             val strs = str.split("\n")
-            info.text = "location: ${it.lastOrNull()} \n${strs[1]}"
+            info.text = "location: ${it.lastOrNull()?.latitude},${it.lastOrNull()?.longitude}  \n" + "${strs[1]}"
         }
 
         GpsPedometerService.stepsTotal.observe(this) {
             val info: TextView = findViewById(R.id.info_tv)
             val str = info.text
             val strs = str.split("\n")
-            info.text = "${strs[0]} \nsteps: ${it- PedometerService.stepsPrevious}"
+            info.text = "${strs[0]} \nsteps: ${it- GpsPedometerService.stepsPrevious}"
         }
     }
 
-    private fun callForegroundService(action: String) {
+    private fun callForegroundService(action: String, activityType:String="") {
         startService(
             Intent(applicationContext, GpsPedometerService::class.java).also {
                 it.action = action
+                if(activityType != "")
+                    it.putExtra("activityType", activityType)
             }
         )
     }
@@ -140,8 +147,14 @@ class OngoingGpsPedometerActivity : AppCompatActivity() {
     private fun registerActivityRecord() {
         val mActivityRecordViewModel = ViewModelProvider(this)[ActivityRecordViewModel::class.java]
 
-        val activityRecord = ActivityRecord(0, activityType, startTime.toLong(), System.currentTimeMillis(), activityToolsData)
-
-        mActivityRecordViewModel.addActivityRecord(activityRecord)
+        val a = if(activityType == null) "None" else activityType
+        val s = if(startTime.isEmpty()) System.currentTimeMillis()-1000 else startTime.toLong()
+        val t = activityToolsData.ifEmpty { "{}" }
+        try {
+            val activityRecord = ActivityRecord(0, a, s, System.currentTimeMillis(), t)
+            mActivityRecordViewModel.addActivityRecord(activityRecord)
+        } catch (e: NullPointerException) {
+            Log.i("OngoingGpsPedometerActivity", "NullPr exception saving record to the DB")
+        }
     }
 }

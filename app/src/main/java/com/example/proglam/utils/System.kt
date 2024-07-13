@@ -15,12 +15,4 @@ object System {
         }
         return false
     }
-
-    fun floatToDP(float: Float, resources: Resources): Float {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, float, resources.displayMetrics)
-    }
-
-    fun floatToSP(float: Float, resources: Resources): Float {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, float, resources.displayMetrics)
-    }
 }

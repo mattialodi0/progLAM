@@ -3,8 +3,12 @@ package com.example.proglam.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.charts.RadarChart
 import com.github.mikephil.charting.components.Legend
@@ -13,6 +17,9 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
@@ -34,7 +41,7 @@ object MPChartBuilder {
         }
 
         val barDataset = BarDataSet(list, "List")
-        barDataset.setColors(ColorTemplate.MATERIAL_COLORS, 255)
+        barDataset.setColors(ColorTemplate.COLORFUL_COLORS, 255)
 
         if (System.isNightModeOn(context)) {
             barDataset.valueTextColor = Color.LTGRAY
@@ -60,6 +67,45 @@ object MPChartBuilder {
         return barChart
     }
 
+    fun buildLineChart(context: Context, data: Array<Float>, labels: ArrayList<String>): LineChart {
+        val lineChart = LineChart(context)
+        val list: ArrayList<Entry> = ArrayList()
+
+        for (i in data.indices) {
+            list.add(Entry((i + 2).toFloat(), data[i]))
+        }
+
+        val lineDataset = LineDataSet(list, "List")
+        lineDataset.setColor(Color.CYAN)
+        lineDataset.setDrawCircles(false)
+        lineDataset.setDrawFilled(true)
+        lineDataset.valueTextSize = 0f
+        lineDataset.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        lineDataset.setDrawHighlightIndicators(false)
+
+        if (System.isNightModeOn(context)) {
+            lineDataset.valueTextColor = Color.LTGRAY
+            lineChart.axisLeft.textColor = Color.LTGRAY
+            lineChart.xAxis.textColor = Color.LTGRAY
+            lineChart.xAxis.axisLineColor = Color.LTGRAY
+        } else {
+            lineDataset.valueTextColor = Color.WHITE
+            lineChart.axisLeft.textColor = Color.WHITE
+            lineChart.xAxis.textColor = Color.WHITE
+            lineChart.xAxis.axisLineColor = Color.WHITE
+        }
+
+        val lineData = LineData(lineDataset)
+        lineChart.data = lineData
+        lineChart.description.text = " "
+        lineChart.axisRight.setDrawLabels(false)
+        lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(labels.toList())
+        lineChart.legend.isEnabled = false
+        lineChart.animateY(1000)
+
+        return lineChart
+    }
+
     fun buildPieChart(context: Context, data: Array<Float>, labels: ArrayList<String>): PieChart {
         val pieChart: PieChart = PieChart(context)
         val list: ArrayList<PieEntry> = ArrayList()
@@ -67,16 +113,15 @@ object MPChartBuilder {
         for (i in data.indices) {
             list.add(PieEntry(data[i], labels[i]))
         }
-
         val pieDataSet = PieDataSet(list, "List")
-        pieDataSet.setColors(ColorTemplate.MATERIAL_COLORS, 255)
+        pieDataSet.setColors(ColorTemplate.COLORFUL_COLORS, 255)
         pieDataSet.valueTextSize = 15f
         pieDataSet.valueTextColor = Color.WHITE
 
         val pieData = PieData(pieDataSet)
         pieChart.data = pieData
         pieChart.description.text = " "
-        pieChart.centerText = "List"
+        pieChart.centerText = "%"
         pieChart.animateXY(
             1400,
             1400,
@@ -101,9 +146,11 @@ object MPChartBuilder {
 
         val radarDataSet = RadarDataSet(list, "List")
         radarDataSet.setColors(ColorTemplate.MATERIAL_COLORS, 255)
+        radarDataSet.setColor(Color.RED)
         radarDataSet.setDrawFilled(true)
         radarDataSet.valueTextSize = 0f
         radarDataSet.valueTextColor = Color.WHITE
+        radarDataSet.setDrawHighlightIndicators(false)
 
 
         val radarData = RadarData(radarDataSet)

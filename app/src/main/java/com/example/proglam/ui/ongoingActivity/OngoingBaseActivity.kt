@@ -1,12 +1,12 @@
 package com.example.proglam.ui.ongoingActivity
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -26,33 +26,31 @@ class OngoingBaseActivity : AppCompatActivity() {
     private var activityType: String = ""
     private var startTime: String = ""
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         //set ongoing activity data
         val extras = intent.extras
         if (extras != null && savedInstanceState == null) {
-            if(extras.getString("activityType") != null)
+            if (extras.getString("activityType") != null)
                 this.activityType = extras.getString("activityType")!!
             if (extras.getString("startTime") != null)
                 this.startTime = extras.getString("startTime")!!
             else
                 this.startTime = System.currentTimeMillis().toString()
-            if(extras.getString("firstTime") != null)
-                callForegroundService(ActivityService.Actions.START.toString())
+            if (extras.getString("firstTime") != null)
+                callForegroundService(ActivityService.Actions.START.toString(), activityType)
         }
 
         setObservers()
 
         /* UI setup */
-        //binding = ActivityOngoingBinding.inflate(layoutInflater)
         enableEdgeToEdge()
         setContentView(R.layout.activity_ongoing)
         setBtnListeners()
         setupUI()
 
-        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 callForegroundService(ActivityService.Actions.STOP.toString())
                 finish()
@@ -70,15 +68,23 @@ class OngoingBaseActivity : AppCompatActivity() {
 
         val stopBtn = findViewById<MaterialButton>(R.id.stop_btn)
         stopBtn.setOnClickListener {
+            Toast.makeText(this, "Long press to stop", Toast.LENGTH_SHORT).show()
+        }
+        stopBtn.setOnLongClickListener {
             callForegroundService(ActivityService.Actions.STOP.toString())
             registerActivityRecord()
             finish()
+            return@setOnLongClickListener true
         }
 
         val deleteBtn = findViewById<MaterialButton>(R.id.delete_btn)
         deleteBtn.setOnClickListener {
+            Toast.makeText(this, "Long press to delete", Toast.LENGTH_SHORT).show()
+        }
+        deleteBtn.setOnLongClickListener() {
             callForegroundService(ActivityService.Actions.STOP.toString())
             finish()
+            return@setOnLongClickListener true
         }
     }
 
@@ -94,6 +100,7 @@ class OngoingBaseActivity : AppCompatActivity() {
                     isTimerRunning = false
                     finish()
                 }
+
                 is TimerEvent.ABORT -> {
                     isTimerRunning = false
                     finish()
@@ -104,14 +111,16 @@ class OngoingBaseActivity : AppCompatActivity() {
         BaseService.timerInMillis.observe(this, Observer {
             val timer: TextView = findViewById(R.id.timer)
             if (it != null)
-                timer.text = Strings.formattedTimer(it/1000)
+                timer.text = Strings.formattedTimer(it / 1000)
         })
     }
 
-    private fun callForegroundService(action: String) {
+    private fun callForegroundService(action: String, activityType: String = "") {
         startService(
             Intent(applicationContext, BaseService::class.java).also {
                 it.action = action
+                if (activityType != "")
+                    it.putExtra("activityType", activityType)
             }
         )
     }
@@ -119,9 +128,13 @@ class OngoingBaseActivity : AppCompatActivity() {
     private fun registerActivityRecord() {
         val mActivityRecordViewModel = ViewModelProvider(this)[ActivityRecordViewModel::class.java]
 
-        val activityRecord =
-            ActivityRecord(0, activityType, startTime.toLong(), System.currentTimeMillis(), "{}")
-
-        mActivityRecordViewModel.addActivityRecord(activityRecord)
+        val a = if (activityType == null) "None" else activityType
+        val s = if (startTime.isEmpty()) System.currentTimeMillis() - 1000 else startTime.toLong()
+        try {
+            val activityRecord = ActivityRecord(0, a, s, System.currentTimeMillis(), "{}")
+            mActivityRecordViewModel.addActivityRecord(activityRecord)
+        } catch (e: NullPointerException) {
+            Log.i("OngoingBaseActivity", "NullPr exception saving record to the DB")
+        }
     }
 }

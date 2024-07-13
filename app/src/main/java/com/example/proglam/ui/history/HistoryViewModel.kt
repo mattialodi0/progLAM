@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class HistoryViewModel : ViewModel() {
-    var timeRange = MutableLiveData("last month")
+    var timeRange = MutableLiveData("last week")
     private var _chartType = MutableLiveData<Int?>(null)
     val chartType = _chartType
 

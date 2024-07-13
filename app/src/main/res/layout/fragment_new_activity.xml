@@ -34,6 +34,7 @@
         android:ems="10"
         android:inputType="text"
         android:text="@={viewmodel.acName}"
+        android:textColor="?android:attr/textColorSecondary"
         app:layout_constraintBottom_toTopOf="@+id/addDesc_et"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -58,6 +59,7 @@
         android:ems="10"
         android:inputType="text"
         android:text="@={viewmodel.acDescription}"
+        android:textColor="?android:attr/textColorSecondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

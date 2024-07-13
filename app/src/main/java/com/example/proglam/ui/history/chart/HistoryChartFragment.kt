@@ -13,10 +13,12 @@ import com.example.proglam.R
 import com.example.proglam.db.ActivityRecordViewModel
 import com.example.proglam.ui.history.HistoryViewModel
 import com.example.proglam.utils.MPChartBuilder.buildBarChart
+import com.example.proglam.utils.MPChartBuilder.buildLineChart
 import com.example.proglam.utils.MPChartBuilder.buildPieChart
 import com.example.proglam.utils.MPChartBuilder.buildRadarChart
 import com.example.proglam.utils.ProcessDBData
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.charts.RadarChart
 
@@ -59,6 +61,9 @@ class HistoryChartFragment : Fragment() {
 
             when (mHistoryViewModel.chartType.value) {
                 null -> {
+                    try {
+                        removeChart(view)
+                    } catch (_: Error) {}
                     val data = ProcessDBData.ARwithACtoList(it!!)
                     drawBarChart(view, data.first, data.second)
                 }
@@ -70,7 +75,7 @@ class HistoryChartFragment : Fragment() {
                 1 -> {
                     removeChart(view)
                     val data = ProcessDBData.ARStepsToList(it!!, getTimeRangeInt(mHistoryViewModel.timeRange.value!!))
-                    drawBarChart(view, data.first, data.second)
+                    drawLineChart(view, data.first, data.second)
                 }
                 2 -> {
                     removeChart(view)
@@ -99,7 +104,6 @@ class HistoryChartFragment : Fragment() {
         container.removeAllViews()
     }
 
-    @SuppressLint("ResourceType")
     private fun drawBarChart(view: View, data: Array<Float>, labels: ArrayList<String>) {
         val barChart: BarChart = buildBarChart(requireContext(), data, labels)
 
@@ -107,7 +111,13 @@ class HistoryChartFragment : Fragment() {
         container.addView(barChart)
     }
 
-    @SuppressLint("ResourceType")
+    private fun drawLineChart(view: View, data: Array<Float>, labels: ArrayList<String>) {
+        val lineChart: LineChart = buildLineChart(requireContext(), data, labels)
+
+        val container: FrameLayout = view.findViewById(R.id.historyChart_fl)
+        container.addView(lineChart)
+    }
+
     private fun drawPieChart(view: View, data: Array<Float>, labels: ArrayList<String>) {
         val pieChart: PieChart = buildPieChart(requireContext(), data, labels)
 
@@ -115,7 +125,6 @@ class HistoryChartFragment : Fragment() {
         container.addView(pieChart)
     }
 
-    @SuppressLint("ResourceType")
     private fun drawRadarChart(view: View, data: Array<Float>, labels: ArrayList<String>) {
         val radarChart: RadarChart = buildRadarChart(requireContext(), data, labels)
 

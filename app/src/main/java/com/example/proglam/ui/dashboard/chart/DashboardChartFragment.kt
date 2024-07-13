@@ -1,6 +1,5 @@
 package com.example.proglam.ui.dashboard.chart
 
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -61,10 +60,9 @@ class DashboardChartFragment : Fragment() {
         }
     }
 
-    @SuppressLint("ResourceType")
     private fun drawBarChart(view: View, data: Array<Long>) {
         val barChart: BarChart = view.findViewById(R.id.bar_chart)
-        var list : ArrayList<BarEntry> = ArrayList()
+        val list : ArrayList<BarEntry> = ArrayList()
 
         for(i in data.indices) {
             list.add(BarEntry((i+2).toFloat(), data[i].toFloat()))
@@ -88,7 +86,7 @@ class DashboardChartFragment : Fragment() {
             barChart.description.textColor = Color.WHITE
         }
 
-        var barData = BarData(barDataset)
+        val barData = BarData(barDataset)
         barChart.setFitBars(true)
         barChart.data = barData
         barChart.description.text = "minutes per day"

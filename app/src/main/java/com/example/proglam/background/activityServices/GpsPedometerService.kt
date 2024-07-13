@@ -17,13 +17,11 @@ import com.example.proglam.utils.Notifications
 open class GpsPedometerService : GpsService(), SensorEventListener {
 
     companion object {
-        val stepsTotal = MutableLiveData<Int>(0)
+        val stepsTotal = MutableLiveData(0)
         var stepsPrevious = 0
     }
 
-
     private var sensorManager: SensorManager? = null
-    private var setted = false
 
     override fun onCreate() {
         super.onCreate()
@@ -39,9 +37,8 @@ open class GpsPedometerService : GpsService(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         stepsTotal.postValue(event!!.values[0].toInt())
-        if(!setted) {
+        if (stepsPrevious == 0) {
             stepsPrevious = event.values[0].toInt()
-            setted = true
         }
     }
 
@@ -54,7 +51,7 @@ open class GpsPedometerService : GpsService(), SensorEventListener {
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setSmallIcon(R.drawable.ic_activitytype_generic)
-            .setContentTitle("Run is active")
+            .setContentTitle("Tracking ${if(activityType != "") activityType else "an activity"}")
             .setContentText("00:00:00")
             .setContentIntent(
                 PendingIntent.getActivity(

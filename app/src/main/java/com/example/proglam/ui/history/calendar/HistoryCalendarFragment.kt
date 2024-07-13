@@ -33,7 +33,6 @@ class HistoryCalendarFragment : Fragment(), ARRecyclerviewInterface {
         calendar = Calendar.getInstance()
     }
 
-    @SuppressLint("ResourceType")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

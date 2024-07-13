@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
@@ -30,6 +29,8 @@ open class BaseService : LifecycleService(), ActivityService {
         val timerEvent = MutableLiveData<TimerEvent>()
         val timerInMillis = MutableLiveData<Long>()
         var errorMessage = " "
+        @JvmStatic
+        protected var activityType: String = ""
     }
 
     private var isServiceStopped = true
@@ -40,7 +41,6 @@ open class BaseService : LifecycleService(), ActivityService {
         initValues()
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ActivityService.Actions.START.toString() -> {
@@ -51,10 +51,12 @@ open class BaseService : LifecycleService(), ActivityService {
                 stop()
             }
         }
+        if(intent != null && intent.extras != null && intent.extras?.getString("activityType") != null)
+            activityType = intent.extras!!.getString("activityType")!!
+
         return super.onStartCommand(intent, flags, startId)
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     override fun start() {
         Log.d("service", "service started")
 
@@ -62,21 +64,28 @@ open class BaseService : LifecycleService(), ActivityService {
         timerEvent.postValue(TimerEvent.START)
         startTimer()
 
-        startForeground(
-            NOTIFICATION_ID,
-            getNotificationBuilder().build(),
-            FOREGROUND_SERVICE_TYPE_LOCATION
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            startForeground(
+                NOTIFICATION_ID,
+                getNotificationBuilder().build(),
+                FOREGROUND_SERVICE_TYPE_LOCATION
+            )
+        else
+            startForeground(
+                NOTIFICATION_ID,
+                getNotificationBuilder().build(),
+            )
 
-        timerInMillis.observe(this, Observer {
-            if (!isServiceStopped) {
-                val builder = getNotificationBuilder()
-                    .setContentText(Strings.formattedTimer(it/1000))
-                val notificationManager =
-                    getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                //notificationManager.notify(NOTIFICATION_ID, builder.build())
-            }
-        })
+        timerInMillis.observe(this) {
+            if ((0..10).random() == 0)
+                if (!isServiceStopped) {
+                    val builder = getNotificationBuilder()
+                        .setContentText(Strings.formattedTimer(it / 1000))
+                    val notificationManager =
+                        getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    notificationManager.notify(NOTIFICATION_ID, builder.build())
+                }
+        }
     }
 
     override fun stop() {
@@ -101,7 +110,7 @@ open class BaseService : LifecycleService(), ActivityService {
             while (!isServiceStopped && timerEvent.value!! == TimerEvent.START) {
                 val lapTime = ((System.currentTimeMillis() - timeStarted))
                 timerInMillis.postValue(lapTime)
-                delay(100L)
+                delay(300L)
             }
         }
     }
@@ -112,7 +121,7 @@ open class BaseService : LifecycleService(), ActivityService {
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setSmallIcon(R.drawable.ic_activitytype_generic)
-            .setContentTitle("Run is active")
+            .setContentTitle("Tracking ${if(activityType != "") activityType else "an activity"}")
             .setContentText("00:00:00")
             .setContentIntent(
                 PendingIntent.getActivity(
