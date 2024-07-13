@@ -138,12 +138,13 @@ class ActivityRecordFragment : Fragment() {
 
         mActivityTypeViewModel.getActivityTypeByName.observe(viewLifecycleOwner) { activityType ->
             val icon = view.findViewById<ImageView>(R.id.arIcon_iv)
+            val iconSrc = if(activityType != null) activityType.iconSrc else "ic_activitytype_generic"
             icon.setImageDrawable(
                 context?.resources?.let {
                     ContextCompat.getDrawable(
                         requireContext(),
                         it.getIdentifier(
-                            activityType.iconSrc.toString(),
+                            iconSrc,
                             "drawable",
                             requireContext().packageName
                         )
