@@ -13,7 +13,6 @@ import com.example.proglam.utils.TimerEvent
 import com.example.proglam.background.activityServices.BaseService
 import com.example.proglam.background.activityServices.GpsPedometerService
 import com.example.proglam.background.activityServices.GpsService
-import com.example.proglam.background.activityServices.PedometerService
 import com.example.proglam.databinding.ActivityOngoingBinding
 import com.example.proglam.db.ActivityRecord
 import com.example.proglam.db.ActivityRecordViewModel
@@ -70,7 +69,7 @@ class OngoingGpsPedometerActivity : AppCompatActivity() {
         val title = findViewById<TextView>(R.id.title_tv)
         title.text = activityType
         val info = findViewById<TextView>(R.id.info_tv)
-        info.text = "location: - \nsteps: 0"
+        info.text = resources.getText(R.string.no_steps_and_no_location)
 
     }
 

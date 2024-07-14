@@ -2,7 +2,6 @@ package com.example.proglam.ui.dashboard.chart
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -95,9 +94,5 @@ class DashboardChartFragment : Fragment() {
         barChart.xAxis.valueFormatter = IndexAxisValueFormatter(listOf("","","","","","yesterday","today"))
         barChart.legend.isEnabled = false
         barChart.animateY(2000)
-    }
-
-    private fun getMinutesByDay(): Array<Long> {
-        return arrayOf((0..60*24).random().toLong(),(0..60*24).random().toLong(),(0..60*24).random().toLong(),(0..60*24).random().toLong(),(0..60*24).random().toLong())
     }
 }

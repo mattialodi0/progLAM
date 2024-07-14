@@ -12,9 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.proglam.R
 import com.example.proglam.utils.TimerEvent
 import com.example.proglam.background.activityServices.BaseService
-import com.example.proglam.background.activityServices.GpsPedometerService
 import com.example.proglam.background.activityServices.GpsService
-import com.example.proglam.background.activityServices.PedometerService
 import com.example.proglam.databinding.ActivityOngoingBinding
 import com.example.proglam.db.ActivityRecord
 import com.example.proglam.db.ActivityRecordViewModel
@@ -71,7 +69,7 @@ class OngoingGpsActivity : AppCompatActivity() {
         val title = findViewById<TextView>(R.id.title_tv)
         title.text = activityType
         val info = findViewById<TextView>(R.id.info_tv)
-        info.text = "location: -"
+        info.text = resources.getText(R.string.no_location)
     }
 
     private fun setBtnListeners() {
@@ -105,7 +103,7 @@ class OngoingGpsActivity : AppCompatActivity() {
     }
 
     private fun setObservers() {
-        BaseService.timerEvent.observe(this, Observer {
+        BaseService.timerEvent.observe(this) {
             when (it) {
                 is TimerEvent.START -> {
                     isTimerRunning = true
@@ -120,7 +118,7 @@ class OngoingGpsActivity : AppCompatActivity() {
                     finish()
                 }
             }
-        })
+        }
 
         BaseService.timerInMillis.observe(this, Observer {
             val timer: TextView = findViewById(R.id.timer)

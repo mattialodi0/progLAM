@@ -89,7 +89,7 @@ class OngoingBaseActivity : AppCompatActivity() {
 
 
     private fun setObservers() {
-        BaseService.timerEvent.observe(this, Observer {
+        BaseService.timerEvent.observe(this) {
             when (it) {
                 is TimerEvent.START -> {
                     isTimerRunning = true
@@ -105,13 +105,13 @@ class OngoingBaseActivity : AppCompatActivity() {
                     finish()
                 }
             }
-        })
+        }
 
-        BaseService.timerInMillis.observe(this, Observer {
+        BaseService.timerInMillis.observe(this) {
             val timer: TextView = findViewById(R.id.timer)
             if (it != null)
                 timer.text = Strings.formattedTimer(it / 1000)
-        })
+        }
     }
 
     private fun callForegroundService(action: String, activityType: String = "") {

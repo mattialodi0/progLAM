@@ -70,7 +70,7 @@ class OngoingPedometerActivity : AppCompatActivity() {
         val title = findViewById<TextView>(R.id.title_tv)
         title.text = activityType
         val info = findViewById<TextView>(R.id.info_tv)
-        info.text = "steps: 0"
+        info.text = resources.getText(R.string.no_steps)
     }
 
     private fun setBtnListeners() {
@@ -120,11 +120,11 @@ class OngoingPedometerActivity : AppCompatActivity() {
             }
         }
 
-        BaseService.timerInMillis.observe(this, Observer {
+        BaseService.timerInMillis.observe(this) {
             val timer: TextView = findViewById(R.id.timer)
             if (it != null)
                 timer.text = Strings.formattedTimer(it/1000)
-        })
+        }
 
         PedometerService.stepsTotal.observe(this) {
             val info: TextView = findViewById(R.id.info_tv)

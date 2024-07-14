@@ -6,8 +6,11 @@
     <string name="title_history">History</string>
 
     <string name="steps_num">steps: \t\t %1$d</string>
+    <string name="no_steps">steps: 0</string>
+    <string name="no_location">location: -</string>
     <string name="location">location: \t\t %1$f,%2$f</string>
     <string name="steps_and_location">steps: \t\t %1$d \n location: \t\t %2$f,%3$f</string>
+    <string name="no_steps_and_no_location">steps: 0 \n location: -</string>
 
     <string-array name="history_chart_types">
         <item>minutes</item>

@@ -5,16 +5,12 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.SystemClock
 import android.util.Log
 import com.example.proglam.R
 import com.example.proglam.db.ActivityDatabase
 import com.example.proglam.db.ActivityRecord
-import com.example.proglam.utils.ActivityTransitionsUtil
 import com.example.proglam.utils.Notifications
-import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityRecognitionResult
-import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
