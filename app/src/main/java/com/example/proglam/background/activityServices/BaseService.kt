@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+import android.graphics.Color
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -29,6 +30,7 @@ open class BaseService : LifecycleService(), ActivityService {
         val timerEvent = MutableLiveData<TimerEvent>()
         val timerInMillis = MutableLiveData<Long>()
         var errorMessage = " "
+
         @JvmStatic
         protected var activityType: String = ""
     }
@@ -51,7 +53,7 @@ open class BaseService : LifecycleService(), ActivityService {
                 stop()
             }
         }
-        if(intent != null && intent.extras != null && intent.extras?.getString("activityType") != null)
+        if (intent != null && intent.extras != null && intent.extras?.getString("activityType") != null)
             activityType = intent.extras!!.getString("activityType")!!
 
         return super.onStartCommand(intent, flags, startId)
@@ -77,14 +79,13 @@ open class BaseService : LifecycleService(), ActivityService {
             )
 
         timerInMillis.observe(this) {
-            if ((0..10).random() == 0)
-                if (!isServiceStopped) {
-                    val builder = getNotificationBuilder()
-                        .setContentText(Strings.formattedTimer(it / 1000))
-                    val notificationManager =
-                        getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    notificationManager.notify(NOTIFICATION_ID, builder.build())
-                }
+            if (!isServiceStopped) {
+                val builder = getNotificationBuilder()
+                    .setContentText(Strings.formattedTimer(it / 1000))
+                val notificationManager =
+                    getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.notify(NOTIFICATION_ID, builder.build())
+            }
         }
     }
 
@@ -110,7 +111,7 @@ open class BaseService : LifecycleService(), ActivityService {
             while (!isServiceStopped && timerEvent.value!! == TimerEvent.START) {
                 val lapTime = ((System.currentTimeMillis() - timeStarted))
                 timerInMillis.postValue(lapTime)
-                delay(300L)
+                delay(1000L)
             }
         }
     }
@@ -121,7 +122,7 @@ open class BaseService : LifecycleService(), ActivityService {
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setSmallIcon(R.drawable.ic_activitytype_generic)
-            .setContentTitle("Tracking ${if(activityType != "") activityType else "an activity"}")
+            .setContentTitle("Tracking ${if (activityType != "") activityType else "an activity"}")
             .setContentText("00:00:00")
             .setContentIntent(
                 PendingIntent.getActivity(

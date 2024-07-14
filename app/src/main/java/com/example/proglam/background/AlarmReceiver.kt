@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.proglam.R
@@ -20,7 +21,7 @@ class AlarmReceiver : BroadcastReceiver() {
         if (intent != null) {
             if (intent.action == "REMIND_TRACKING") {
                 val notification = NotificationCompat.Builder(context, Notifications.CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_activitytype_generic)
+                    .setSmallIcon(R.drawable.ic_splashscreen)
                     .setContentTitle("Activity tracker")
                     .setContentText("It is time to register an activity")
                     .build()

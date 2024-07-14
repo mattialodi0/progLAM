@@ -2,6 +2,7 @@ package com.example.proglam.ui.dashboard.chart
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,7 +38,7 @@ class DashboardChartFragment : Fragment() {
 
             val secondsPerDay = arrayOf(0L,0L,0L,0L,0L)
             val dayLength:Long = 86400000
-            val today = Date(Date().time - Date().time % (24 * 60 * 60 * 1000)).time
+            val today = Date(Date().time - Date().time % (24 * 60 * 60 * 1000)).time - (2*3600*1000)
 
             for(ar in activitiesRecords) {
                 if (ar.startTime > today) {

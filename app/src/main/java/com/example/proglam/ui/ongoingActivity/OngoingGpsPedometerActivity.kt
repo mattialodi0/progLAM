@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -76,6 +77,9 @@ class OngoingGpsPedometerActivity : AppCompatActivity() {
     private fun setBtnListeners() {
         val stopBtn = findViewById<MaterialButton>(R.id.stop_btn)
         stopBtn.setOnClickListener {
+            Toast.makeText(this, "Long press to stop", Toast.LENGTH_SHORT).show()
+        }
+        stopBtn.setOnLongClickListener {
             try {
                 val pos = if(GpsService.locations.value != null) GpsService.locations.value!! else ArrayList<LatLng>()
                 val steps = if(GpsPedometerService.stepsTotal.value != null) GpsPedometerService.stepsTotal.value!! - GpsPedometerService.stepsPrevious else 0
@@ -86,12 +90,17 @@ class OngoingGpsPedometerActivity : AppCompatActivity() {
             callForegroundService(ActivityService.Actions.STOP.toString())
             registerActivityRecord()
             finish()
+            return@setOnLongClickListener true
         }
 
         val deleteBtn = findViewById<MaterialButton>(R.id.delete_btn)
         deleteBtn.setOnClickListener {
+            Toast.makeText(this, "Long press to delete", Toast.LENGTH_SHORT).show()
+        }
+        deleteBtn.setOnLongClickListener() {
             callForegroundService(ActivityService.Actions.STOP.toString())
             finish()
+            return@setOnLongClickListener true
         }
     }
 

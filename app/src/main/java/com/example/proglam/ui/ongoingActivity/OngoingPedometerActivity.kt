@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -75,6 +76,9 @@ class OngoingPedometerActivity : AppCompatActivity() {
     private fun setBtnListeners() {
         val stopBtn = findViewById<MaterialButton>(R.id.stop_btn)
         stopBtn.setOnClickListener {
+            Toast.makeText(this, "Long press to stop", Toast.LENGTH_SHORT).show()
+        }
+        stopBtn.setOnLongClickListener() {
             try {
                 val steps = if(PedometerService.stepsTotal.value != null) PedometerService.stepsTotal.value!! - PedometerService.stepsPrevious else 0
                 activityToolsData = Gson().toJson(JsonData(ArrayList<LatLng>(), steps))
@@ -85,12 +89,17 @@ class OngoingPedometerActivity : AppCompatActivity() {
             callForegroundService(ActivityService.Actions.STOP.toString())
             registerActivityRecord()
             finish()
+            return@setOnLongClickListener true
         }
 
         val deleteBtn = findViewById<MaterialButton>(R.id.delete_btn)
         deleteBtn.setOnClickListener {
+            Toast.makeText(this, "Long press to delete", Toast.LENGTH_SHORT).show()
+        }
+        deleteBtn.setOnLongClickListener() {
             callForegroundService(ActivityService.Actions.STOP.toString())
             finish()
+            return@setOnLongClickListener true
         }
     }
 

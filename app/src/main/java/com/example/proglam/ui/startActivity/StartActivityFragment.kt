@@ -166,27 +166,37 @@ class StartActivityFragment : Fragment(), ATRecyclerviewInterface, View.OnClickL
                         ActivityCompat.checkSelfPermission(
                             requireContext(),
                             Manifest.permission.ACTIVITY_RECOGNITION
+                        ) == PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.ACCESS_FINE_LOCATION
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
                         mStartActivityViewModel.autoRec.postValue(true)
                     } else {
                         switch.isChecked = false
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             ActivityCompat.requestPermissions(
                                 requireActivity(),
-                                arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
-                                0
-                            )
-                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            ActivityCompat.requestPermissions(
-                                requireActivity(),
-                                arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+                                arrayOf(
+                                    Manifest.permission.ACTIVITY_RECOGNITION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                ),
                                 0
                             )
                         } else {
                             ActivityCompat.requestPermissions(
                                 requireActivity(),
-                                arrayOf("ACTIVITY_RECOGNITION"),
+                                arrayOf(
+                                    "ACTIVITY_RECOGNITION",
+                                    "ACCESS_COARSE_LOCATION",
+                                    "ACCESS_FINE_LOCATION"
+                                ),
                                 0
                             )
                         }
@@ -213,10 +223,6 @@ class StartActivityFragment : Fragment(), ATRecyclerviewInterface, View.OnClickL
                         ActivityCompat.checkSelfPermission(
                             requireContext(),
                             Manifest.permission.BODY_SENSORS
-                        ) == PackageManager.PERMISSION_GRANTED &&
-                        ActivityCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.ACTIVITY_RECOGNITION
                         ) == PackageManager.PERMISSION_GRANTED &&
                         ActivityCompat.checkSelfPermission(
                             requireContext(),
@@ -295,7 +301,6 @@ class StartActivityFragment : Fragment(), ATRecyclerviewInterface, View.OnClickL
                                 requireActivity(),
                                 arrayOf(
                                     Manifest.permission.BODY_SENSORS,
-                                    Manifest.permission.ACTIVITY_RECOGNITION,
                                     Manifest.permission.FOREGROUND_SERVICE_LOCATION,
                                     Manifest.permission.ACCESS_COARSE_LOCATION,
                                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -307,7 +312,6 @@ class StartActivityFragment : Fragment(), ATRecyclerviewInterface, View.OnClickL
                                 requireActivity(),
                                 arrayOf(
                                     Manifest.permission.BODY_SENSORS,
-                                    Manifest.permission.ACTIVITY_RECOGNITION,
                                     Manifest.permission.ACCESS_COARSE_LOCATION,
                                     Manifest.permission.ACCESS_FINE_LOCATION
                                 ),

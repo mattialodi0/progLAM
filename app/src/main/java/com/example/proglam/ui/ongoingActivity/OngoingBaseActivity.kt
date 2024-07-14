@@ -65,7 +65,6 @@ class OngoingBaseActivity : AppCompatActivity() {
     }
 
     private fun setBtnListeners() {
-
         val stopBtn = findViewById<MaterialButton>(R.id.stop_btn)
         stopBtn.setOnClickListener {
             Toast.makeText(this, "Long press to stop", Toast.LENGTH_SHORT).show()

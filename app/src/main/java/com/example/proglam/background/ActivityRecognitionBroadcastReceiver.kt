@@ -118,7 +118,7 @@ class ActivityRecognitionBroadcastReceiver : BroadcastReceiver() {
         val notification = Notification.Builder(context, channelId)
             .setContentTitle(title)
             .setContentText("type: $activityType")
-            .setSmallIcon(R.drawable.ic_activitytype_generic)
+            .setSmallIcon(R.drawable.ic_splashscreen)
             .build()
         notificationManager.notify(0, notification)
 
