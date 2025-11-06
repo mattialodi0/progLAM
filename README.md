@@ -1,2 +1,3 @@
-# Progetto di Applicazioni Mobili 2024
+# ProgLAM - Activity tracker
 
+see ./progLAM.pdf for a description of the application
